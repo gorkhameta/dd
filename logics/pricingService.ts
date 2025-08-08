@@ -2,6 +2,17 @@ import { TRPCError } from "@trpc/server";
 import { eq, and } from "drizzle-orm";
 import { pricingPlan, promotion, country, pppRule } from "@/db/schema";
 
+/**
+ * Calculates the final price of a pricing plan after applying PPP and promotion discounts.
+ *
+ * Determines the base price for a given plan and applies country-based purchasing power parity (PPP) discounts and active promotion discounts if applicable. Returns an object with the base price, PPP discount, promotion discount, and the computed final price.
+ *
+ * @param planId - Identifier of the pricing plan to price
+ * @param countryCode - Country code used for PPP discount calculation
+ * @param promotionCode - Optional promotion code for additional discount
+ * @param organizationId - Optional organization identifier for discount eligibility
+ * @returns An object containing `basePrice`, `pppDiscount`, `promotionDiscount`, and `finalPrice`
+ */
 export async function calculatePrice(
   db: any,
   planId: string,

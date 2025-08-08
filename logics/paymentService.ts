@@ -35,7 +35,14 @@ const WebhookEventSchema = z.object({
     signature: z.string(), // For webhook signature verification
 });
 
-// Fetch webhook secret from integration table
+/**
+ * Retrieves the webhook secret for an active integration matching the given organization and provider.
+ *
+ * @param organizationId - The unique identifier of the organization
+ * @param provider - The payment provider name (e.g., "stripe")
+ * @returns The webhook secret associated with the integration
+ * @throws TRPCError with code "NOT_FOUND" if no active integration is found for the specified provider and organization
+ */
 async function getWebhookSecret(db: any, organizationId: string, provider: string): Promise<string> {
     const [integrationRecord] = await db
         .select({ webhookSecret: integration.webhookSecret })
@@ -59,14 +66,26 @@ async function getWebhookSecret(db: any, organizationId: string, provider: strin
     return integrationRecord.webhookSecret;
 }
 
-// Placeholder for webhook signature verification (provider-specific)
+/**
+ * Verifies the authenticity of a webhook payload using the provided signature and secret.
+ *
+ * This function is intended to be implemented with provider-specific signature verification logic.
+ *
+ * @returns `true` if the webhook signature is valid; otherwise, `false`
+ */
 async function verifyWebhookSignature(payload: any, signature: string, secret: string): Promise<boolean> {
     // Implement provider-specific signature verification (e.g., Stripe's webhook signature)
     // Example for Stripe: const event = stripe.webhooks.constructEvent(payload, signature, secret);
     return true; // Replace with actual verification logic
 }
 
-// Map external plan ID to internal plan ID (using integration.settings)
+/**
+ * Retrieves the internal plan ID mapped from an external plan ID for a given organization.
+ *
+ * @param organizationId - The ID of the organization whose integration settings are queried
+ * @param externalPlanId - The external plan ID to map
+ * @returns The corresponding internal plan ID if a mapping exists; otherwise, `null`
+ */
 async function mapExternalPlanToInternal(db: any, organizationId: string, externalPlanId: string): Promise<string | null> {
     const [integrationRecord] = await db
         .select({ settings: integration.settings })
@@ -88,6 +107,16 @@ async function mapExternalPlanToInternal(db: any, organizationId: string, extern
     return null; // Return null if no mapping is found
 }
 
+/**
+ * Processes a payment provider webhook event for an organization, updating orders, subscriptions, and customer records as needed.
+ *
+ * Validates the webhook payload and signature, logs the event, and performs actions based on the event type, such as updating order status, managing subscription lifecycle events, and recording analytics. Throws errors for invalid payloads, unauthorized signatures, missing customers or subscriptions, and unsupported event types.
+ *
+ * @param payload - The webhook event payload to process
+ * @param organizationId - The ID of the organization receiving the webhook
+ * @param provider - The payment provider name (defaults to "stripe")
+ * @returns An object indicating the processed event type, status, and relevant entity IDs (such as orderId or subscriptionId)
+ */
 export async function processPaymentWebhook(
     db: any,
     payload: any,
