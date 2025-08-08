@@ -1,11 +1,11 @@
 {
-  "id": "ef34f067-505e-4ed7-bbe9-bc88257f3b9d",
+  "id": "fe5c52e0-0f9d-4f11-8fdc-332016efe5b1",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
-    "public.accounts": {
-      "name": "accounts",
+    "public.account": {
+      "name": "account",
       "schema": "",
       "columns": {
         "id": {
@@ -90,8 +90,8 @@
         }
       },
       "indexes": {
-        "accounts_user_id_idx": {
-          "name": "accounts_user_id_idx",
+        "account_user_id_idx": {
+          "name": "account_user_id_idx",
           "columns": [
             {
               "expression": "user_id",
@@ -105,8 +105,8 @@
           "method": "btree",
           "with": {}
         },
-        "accounts_provider_account_idx": {
-          "name": "accounts_provider_account_idx",
+        "account_provider_account_idx": {
+          "name": "account_provider_account_idx",
           "columns": [
             {
               "expression": "provider_id",
@@ -128,10 +128,10 @@
         }
       },
       "foreignKeys": {
-        "accounts_user_id_users_id_fk": {
-          "name": "accounts_user_id_users_id_fk",
-          "tableFrom": "accounts",
-          "tableTo": "users",
+        "account_user_id_user_id_fk": {
+          "name": "account_user_id_user_id_fk",
+          "tableFrom": "account",
+          "tableTo": "user",
           "columnsFrom": [
             "user_id"
           ],
@@ -148,8 +148,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.analytics_events": {
-      "name": "analytics_events",
+    "public.analytics_event": {
+      "name": "analytics_event",
       "schema": "",
       "columns": {
         "id": {
@@ -227,8 +227,8 @@
         }
       },
       "indexes": {
-        "analytics_events_organization_id_idx": {
-          "name": "analytics_events_organization_id_idx",
+        "analytics_event_organization_id_idx": {
+          "name": "analytics_event_organization_id_idx",
           "columns": [
             {
               "expression": "organization_id",
@@ -242,8 +242,8 @@
           "method": "btree",
           "with": {}
         },
-        "analytics_events_event_type_idx": {
-          "name": "analytics_events_event_type_idx",
+        "analytics_event_event_type_idx": {
+          "name": "analytics_event_event_type_idx",
           "columns": [
             {
               "expression": "event_type",
@@ -257,8 +257,8 @@
           "method": "btree",
           "with": {}
         },
-        "analytics_events_timestamp_idx": {
-          "name": "analytics_events_timestamp_idx",
+        "analytics_event_timestamp_idx": {
+          "name": "analytics_event_timestamp_idx",
           "columns": [
             {
               "expression": "timestamp",
@@ -272,8 +272,8 @@
           "method": "btree",
           "with": {}
         },
-        "analytics_events_country_idx": {
-          "name": "analytics_events_country_idx",
+        "analytics_event_country_idx": {
+          "name": "analytics_event_country_idx",
           "columns": [
             {
               "expression": "country_code",
@@ -289,10 +289,10 @@
         }
       },
       "foreignKeys": {
-        "analytics_events_organization_id_organizations_id_fk": {
-          "name": "analytics_events_organization_id_organizations_id_fk",
-          "tableFrom": "analytics_events",
-          "tableTo": "organizations",
+        "analytics_event_organization_id_organization_id_fk": {
+          "name": "analytics_event_organization_id_organization_id_fk",
+          "tableFrom": "analytics_event",
+          "tableTo": "organization",
           "columnsFrom": [
             "organization_id"
           ],
@@ -302,10 +302,10 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "analytics_events_customer_id_customers_id_fk": {
-          "name": "analytics_events_customer_id_customers_id_fk",
-          "tableFrom": "analytics_events",
-          "tableTo": "customers",
+        "analytics_event_customer_id_customer_id_fk": {
+          "name": "analytics_event_customer_id_customer_id_fk",
+          "tableFrom": "analytics_event",
+          "tableTo": "customer",
           "columnsFrom": [
             "customer_id"
           ],
@@ -315,10 +315,10 @@
           "onDelete": "set null",
           "onUpdate": "no action"
         },
-        "analytics_events_product_id_products_id_fk": {
-          "name": "analytics_events_product_id_products_id_fk",
-          "tableFrom": "analytics_events",
-          "tableTo": "products",
+        "analytics_event_product_id_product_id_fk": {
+          "name": "analytics_event_product_id_product_id_fk",
+          "tableFrom": "analytics_event",
+          "tableTo": "product",
           "columnsFrom": [
             "product_id"
           ],
@@ -328,10 +328,10 @@
           "onDelete": "set null",
           "onUpdate": "no action"
         },
-        "analytics_events_order_id_orders_id_fk": {
-          "name": "analytics_events_order_id_orders_id_fk",
-          "tableFrom": "analytics_events",
-          "tableTo": "orders",
+        "analytics_event_order_id_order_id_fk": {
+          "name": "analytics_event_order_id_order_id_fk",
+          "tableFrom": "analytics_event",
+          "tableTo": "order",
           "columnsFrom": [
             "order_id"
           ],
@@ -348,8 +348,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.api_keys": {
-      "name": "api_keys",
+    "public.api_key": {
+      "name": "api_key",
       "schema": "",
       "columns": {
         "id": {
@@ -410,8 +410,8 @@
         }
       },
       "indexes": {
-        "api_keys_organization_id_idx": {
-          "name": "api_keys_organization_id_idx",
+        "api_key_organization_id_idx": {
+          "name": "api_key_organization_id_idx",
           "columns": [
             {
               "expression": "organization_id",
@@ -425,8 +425,8 @@
           "method": "btree",
           "with": {}
         },
-        "api_keys_key_hash_idx": {
-          "name": "api_keys_key_hash_idx",
+        "api_key_key_hash_idx": {
+          "name": "api_key_key_hash_idx",
           "columns": [
             {
               "expression": "key_hash",
@@ -440,8 +440,8 @@
           "method": "btree",
           "with": {}
         },
-        "api_keys_active_idx": {
-          "name": "api_keys_active_idx",
+        "api_key_active_idx": {
+          "name": "api_key_active_idx",
           "columns": [
             {
               "expression": "is_active",
@@ -457,10 +457,10 @@
         }
       },
       "foreignKeys": {
-        "api_keys_organization_id_organizations_id_fk": {
-          "name": "api_keys_organization_id_organizations_id_fk",
-          "tableFrom": "api_keys",
-          "tableTo": "organizations",
+        "api_key_organization_id_organization_id_fk": {
+          "name": "api_key_organization_id_organization_id_fk",
+          "tableFrom": "api_key",
+          "tableTo": "organization",
           "columnsFrom": [
             "organization_id"
           ],
@@ -473,8 +473,8 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "api_keys_key_hash_unique": {
-          "name": "api_keys_key_hash_unique",
+        "api_key_key_hash_unique": {
+          "name": "api_key_key_hash_unique",
           "nullsNotDistinct": false,
           "columns": [
             "key_hash"
@@ -485,8 +485,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.countries": {
-      "name": "countries",
+    "public.country": {
+      "name": "country",
       "schema": "",
       "columns": {
         "code": {
@@ -538,8 +538,8 @@
         }
       },
       "indexes": {
-        "countries_name_idx": {
-          "name": "countries_name_idx",
+        "country_name_idx": {
+          "name": "country_name_idx",
           "columns": [
             {
               "expression": "name",
@@ -553,8 +553,8 @@
           "method": "btree",
           "with": {}
         },
-        "countries_active_idx": {
-          "name": "countries_active_idx",
+        "country_active_idx": {
+          "name": "country_active_idx",
           "columns": [
             {
               "expression": "is_active",
@@ -576,8 +576,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.customers": {
-      "name": "customers",
+    "public.customer": {
+      "name": "customer",
       "schema": "",
       "columns": {
         "id": {
@@ -597,6 +597,12 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
+        },
+        "external_id": {
+          "name": "external_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
         },
         "name": {
           "name": "name",
@@ -664,8 +670,8 @@
         }
       },
       "indexes": {
-        "customers_organization_id_idx": {
-          "name": "customers_organization_id_idx",
+        "customer_organization_id_idx": {
+          "name": "customer_organization_id_idx",
           "columns": [
             {
               "expression": "organization_id",
@@ -679,8 +685,8 @@
           "method": "btree",
           "with": {}
         },
-        "customers_email_idx": {
-          "name": "customers_email_idx",
+        "customer_email_idx": {
+          "name": "customer_email_idx",
           "columns": [
             {
               "expression": "email",
@@ -694,8 +700,8 @@
           "method": "btree",
           "with": {}
         },
-        "customers_country_idx": {
-          "name": "customers_country_idx",
+        "customer_country_idx": {
+          "name": "customer_country_idx",
           "columns": [
             {
               "expression": "country_code",
@@ -709,8 +715,8 @@
           "method": "btree",
           "with": {}
         },
-        "customers_org_email_idx": {
-          "name": "customers_org_email_idx",
+        "customer_org_email_idx": {
+          "name": "customer_org_email_idx",
           "columns": [
             {
               "expression": "organization_id",
@@ -729,13 +735,28 @@
           "concurrently": false,
           "method": "btree",
           "with": {}
+        },
+        "customer_external_id_idx": {
+          "name": "customer_external_id_idx",
+          "columns": [
+            {
+              "expression": "external_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
         }
       },
       "foreignKeys": {
-        "customers_organization_id_organizations_id_fk": {
-          "name": "customers_organization_id_organizations_id_fk",
-          "tableFrom": "customers",
-          "tableTo": "organizations",
+        "customer_organization_id_organization_id_fk": {
+          "name": "customer_organization_id_organization_id_fk",
+          "tableFrom": "customer",
+          "tableTo": "organization",
           "columnsFrom": [
             "organization_id"
           ],
@@ -745,10 +766,10 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "customers_country_code_countries_code_fk": {
-          "name": "customers_country_code_countries_code_fk",
-          "tableFrom": "customers",
-          "tableTo": "countries",
+        "customer_country_code_country_code_fk": {
+          "name": "customer_country_code_country_code_fk",
+          "tableFrom": "customer",
+          "tableTo": "country",
           "columnsFrom": [
             "country_code"
           ],
@@ -760,13 +781,21 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
+      "uniqueConstraints": {
+        "customer_external_id_unique": {
+          "name": "customer_external_id_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "external_id"
+          ]
+        }
+      },
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.entitlements": {
-      "name": "entitlements",
+    "public.entitlement": {
+      "name": "entitlement",
       "schema": "",
       "columns": {
         "id": {
@@ -809,8 +838,8 @@
         }
       },
       "indexes": {
-        "entitlements_customer_feature_idx": {
-          "name": "entitlements_customer_feature_idx",
+        "entitlement_customer_feature_idx": {
+          "name": "entitlement_customer_feature_idx",
           "columns": [
             {
               "expression": "customer_id",
@@ -830,8 +859,8 @@
           "method": "btree",
           "with": {}
         },
-        "entitlements_customer_id_idx": {
-          "name": "entitlements_customer_id_idx",
+        "entitlement_customer_id_idx": {
+          "name": "entitlement_customer_id_idx",
           "columns": [
             {
               "expression": "customer_id",
@@ -845,8 +874,8 @@
           "method": "btree",
           "with": {}
         },
-        "entitlements_feature_id_idx": {
-          "name": "entitlements_feature_id_idx",
+        "entitlement_feature_id_idx": {
+          "name": "entitlement_feature_id_idx",
           "columns": [
             {
               "expression": "feature_id",
@@ -862,10 +891,10 @@
         }
       },
       "foreignKeys": {
-        "entitlements_customer_id_customers_id_fk": {
-          "name": "entitlements_customer_id_customers_id_fk",
-          "tableFrom": "entitlements",
-          "tableTo": "customers",
+        "entitlement_customer_id_customer_id_fk": {
+          "name": "entitlement_customer_id_customer_id_fk",
+          "tableFrom": "entitlement",
+          "tableTo": "customer",
           "columnsFrom": [
             "customer_id"
           ],
@@ -875,10 +904,10 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "entitlements_feature_id_features_id_fk": {
-          "name": "entitlements_feature_id_features_id_fk",
-          "tableFrom": "entitlements",
-          "tableTo": "features",
+        "entitlement_feature_id_feature_id_fk": {
+          "name": "entitlement_feature_id_feature_id_fk",
+          "tableFrom": "entitlement",
+          "tableTo": "feature",
           "columnsFrom": [
             "feature_id"
           ],
@@ -895,8 +924,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.features": {
-      "name": "features",
+    "public.feature": {
+      "name": "feature",
       "schema": "",
       "columns": {
         "id": {
@@ -949,11 +978,18 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
         }
       },
       "indexes": {
-        "features_organization_id_idx": {
-          "name": "features_organization_id_idx",
+        "feature_organization_id_idx": {
+          "name": "feature_organization_id_idx",
           "columns": [
             {
               "expression": "organization_id",
@@ -967,8 +1003,8 @@
           "method": "btree",
           "with": {}
         },
-        "features_slug_idx": {
-          "name": "features_slug_idx",
+        "feature_slug_idx": {
+          "name": "feature_slug_idx",
           "columns": [
             {
               "expression": "slug",
@@ -984,10 +1020,10 @@
         }
       },
       "foreignKeys": {
-        "features_organization_id_organizations_id_fk": {
-          "name": "features_organization_id_organizations_id_fk",
-          "tableFrom": "features",
-          "tableTo": "organizations",
+        "feature_organization_id_organization_id_fk": {
+          "name": "feature_organization_id_organization_id_fk",
+          "tableFrom": "feature",
+          "tableTo": "organization",
           "columnsFrom": [
             "organization_id"
           ],
@@ -1000,8 +1036,8 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "features_slug_unique": {
-          "name": "features_slug_unique",
+        "feature_slug_unique": {
+          "name": "feature_slug_unique",
           "nullsNotDistinct": false,
           "columns": [
             "slug"
@@ -1012,8 +1048,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.integrations": {
-      "name": "integrations",
+    "public.integration": {
+      "name": "integration",
       "schema": "",
       "columns": {
         "id": {
@@ -1093,8 +1129,8 @@
         }
       },
       "indexes": {
-        "integrations_organization_id_idx": {
-          "name": "integrations_organization_id_idx",
+        "integration_organization_id_idx": {
+          "name": "integration_organization_id_idx",
           "columns": [
             {
               "expression": "organization_id",
@@ -1108,8 +1144,8 @@
           "method": "btree",
           "with": {}
         },
-        "integrations_provider_idx": {
-          "name": "integrations_provider_idx",
+        "integration_provider_idx": {
+          "name": "integration_provider_idx",
           "columns": [
             {
               "expression": "provider",
@@ -1123,8 +1159,8 @@
           "method": "btree",
           "with": {}
         },
-        "integrations_active_idx": {
-          "name": "integrations_active_idx",
+        "integration_active_idx": {
+          "name": "integration_active_idx",
           "columns": [
             {
               "expression": "is_active",
@@ -1138,8 +1174,8 @@
           "method": "btree",
           "with": {}
         },
-        "integrations_org_provider_idx": {
-          "name": "integrations_org_provider_idx",
+        "integration_org_provider_idx": {
+          "name": "integration_org_provider_idx",
           "columns": [
             {
               "expression": "organization_id",
@@ -1161,10 +1197,10 @@
         }
       },
       "foreignKeys": {
-        "integrations_organization_id_organizations_id_fk": {
-          "name": "integrations_organization_id_organizations_id_fk",
-          "tableFrom": "integrations",
-          "tableTo": "organizations",
+        "integration_organization_id_organization_id_fk": {
+          "name": "integration_organization_id_organization_id_fk",
+          "tableFrom": "integration",
+          "tableTo": "organization",
           "columnsFrom": [
             "organization_id"
           ],
@@ -1181,8 +1217,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.invitations": {
-      "name": "invitations",
+    "public.invitation": {
+      "name": "invitation",
       "schema": "",
       "columns": {
         "id": {
@@ -1239,8 +1275,8 @@
         }
       },
       "indexes": {
-        "invitations_organization_id_idx": {
-          "name": "invitations_organization_id_idx",
+        "invitation_organization_id_idx": {
+          "name": "invitation_organization_id_idx",
           "columns": [
             {
               "expression": "organization_id",
@@ -1254,8 +1290,8 @@
           "method": "btree",
           "with": {}
         },
-        "invitations_email_idx": {
-          "name": "invitations_email_idx",
+        "invitation_email_idx": {
+          "name": "invitation_email_idx",
           "columns": [
             {
               "expression": "email",
@@ -1271,10 +1307,10 @@
         }
       },
       "foreignKeys": {
-        "invitations_organization_id_organizations_id_fk": {
-          "name": "invitations_organization_id_organizations_id_fk",
-          "tableFrom": "invitations",
-          "tableTo": "organizations",
+        "invitation_organization_id_organization_id_fk": {
+          "name": "invitation_organization_id_organization_id_fk",
+          "tableFrom": "invitation",
+          "tableTo": "organization",
           "columnsFrom": [
             "organization_id"
           ],
@@ -1284,10 +1320,10 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "invitations_inviter_id_users_id_fk": {
-          "name": "invitations_inviter_id_users_id_fk",
-          "tableFrom": "invitations",
-          "tableTo": "users",
+        "invitation_inviter_id_user_id_fk": {
+          "name": "invitation_inviter_id_user_id_fk",
+          "tableFrom": "invitation",
+          "tableTo": "user",
           "columnsFrom": [
             "inviter_id"
           ],
@@ -1304,8 +1340,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.members": {
-      "name": "members",
+    "public.member": {
+      "name": "member",
       "schema": "",
       "columns": {
         "id": {
@@ -1349,8 +1385,8 @@
         }
       },
       "indexes": {
-        "members_org_user_idx": {
-          "name": "members_org_user_idx",
+        "member_org_user_idx": {
+          "name": "member_org_user_idx",
           "columns": [
             {
               "expression": "organization_id",
@@ -1370,8 +1406,8 @@
           "method": "btree",
           "with": {}
         },
-        "members_organization_id_idx": {
-          "name": "members_organization_id_idx",
+        "member_organization_id_idx": {
+          "name": "member_organization_id_idx",
           "columns": [
             {
               "expression": "organization_id",
@@ -1385,8 +1421,8 @@
           "method": "btree",
           "with": {}
         },
-        "members_user_id_idx": {
-          "name": "members_user_id_idx",
+        "member_user_id_idx": {
+          "name": "member_user_id_idx",
           "columns": [
             {
               "expression": "user_id",
@@ -1402,10 +1438,10 @@
         }
       },
       "foreignKeys": {
-        "members_organization_id_organizations_id_fk": {
-          "name": "members_organization_id_organizations_id_fk",
-          "tableFrom": "members",
-          "tableTo": "organizations",
+        "member_organization_id_organization_id_fk": {
+          "name": "member_organization_id_organization_id_fk",
+          "tableFrom": "member",
+          "tableTo": "organization",
           "columnsFrom": [
             "organization_id"
           ],
@@ -1415,10 +1451,10 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "members_user_id_users_id_fk": {
-          "name": "members_user_id_users_id_fk",
-          "tableFrom": "members",
-          "tableTo": "users",
+        "member_user_id_user_id_fk": {
+          "name": "member_user_id_user_id_fk",
+          "tableFrom": "member",
+          "tableTo": "user",
           "columnsFrom": [
             "user_id"
           ],
@@ -1435,8 +1471,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.orders": {
-      "name": "orders",
+    "public.order": {
+      "name": "order",
       "schema": "",
       "columns": {
         "id": {
@@ -1563,8 +1599,8 @@
         }
       },
       "indexes": {
-        "orders_organization_id_idx": {
-          "name": "orders_organization_id_idx",
+        "order_organization_id_idx": {
+          "name": "order_organization_id_idx",
           "columns": [
             {
               "expression": "organization_id",
@@ -1578,8 +1614,8 @@
           "method": "btree",
           "with": {}
         },
-        "orders_customer_id_idx": {
-          "name": "orders_customer_id_idx",
+        "order_customer_id_idx": {
+          "name": "order_customer_id_idx",
           "columns": [
             {
               "expression": "customer_id",
@@ -1593,8 +1629,8 @@
           "method": "btree",
           "with": {}
         },
-        "orders_plan_id_idx": {
-          "name": "orders_plan_id_idx",
+        "order_plan_id_idx": {
+          "name": "order_plan_id_idx",
           "columns": [
             {
               "expression": "plan_id",
@@ -1608,8 +1644,8 @@
           "method": "btree",
           "with": {}
         },
-        "orders_status_idx": {
-          "name": "orders_status_idx",
+        "order_status_idx": {
+          "name": "order_status_idx",
           "columns": [
             {
               "expression": "status",
@@ -1623,8 +1659,8 @@
           "method": "btree",
           "with": {}
         },
-        "orders_created_at_idx": {
-          "name": "orders_created_at_idx",
+        "order_created_at_idx": {
+          "name": "order_created_at_idx",
           "columns": [
             {
               "expression": "created_at",
@@ -1638,8 +1674,8 @@
           "method": "btree",
           "with": {}
         },
-        "orders_country_idx": {
-          "name": "orders_country_idx",
+        "order_country_idx": {
+          "name": "order_country_idx",
           "columns": [
             {
               "expression": "country_code",
@@ -1655,10 +1691,10 @@
         }
       },
       "foreignKeys": {
-        "orders_organization_id_organizations_id_fk": {
-          "name": "orders_organization_id_organizations_id_fk",
-          "tableFrom": "orders",
-          "tableTo": "organizations",
+        "order_organization_id_organization_id_fk": {
+          "name": "order_organization_id_organization_id_fk",
+          "tableFrom": "order",
+          "tableTo": "organization",
           "columnsFrom": [
             "organization_id"
           ],
@@ -1668,10 +1704,10 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "orders_customer_id_customers_id_fk": {
-          "name": "orders_customer_id_customers_id_fk",
-          "tableFrom": "orders",
-          "tableTo": "customers",
+        "order_customer_id_customer_id_fk": {
+          "name": "order_customer_id_customer_id_fk",
+          "tableFrom": "order",
+          "tableTo": "customer",
           "columnsFrom": [
             "customer_id"
           ],
@@ -1681,10 +1717,10 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "orders_product_id_products_id_fk": {
-          "name": "orders_product_id_products_id_fk",
-          "tableFrom": "orders",
-          "tableTo": "products",
+        "order_product_id_product_id_fk": {
+          "name": "order_product_id_product_id_fk",
+          "tableFrom": "order",
+          "tableTo": "product",
           "columnsFrom": [
             "product_id"
           ],
@@ -1694,10 +1730,10 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "orders_plan_id_pricing_plans_id_fk": {
-          "name": "orders_plan_id_pricing_plans_id_fk",
-          "tableFrom": "orders",
-          "tableTo": "pricing_plans",
+        "order_plan_id_pricing_plan_id_fk": {
+          "name": "order_plan_id_pricing_plan_id_fk",
+          "tableFrom": "order",
+          "tableTo": "pricing_plan",
           "columnsFrom": [
             "plan_id"
           ],
@@ -1707,10 +1743,10 @@
           "onDelete": "set null",
           "onUpdate": "no action"
         },
-        "orders_country_code_countries_code_fk": {
-          "name": "orders_country_code_countries_code_fk",
-          "tableFrom": "orders",
-          "tableTo": "countries",
+        "order_country_code_country_code_fk": {
+          "name": "order_country_code_country_code_fk",
+          "tableFrom": "order",
+          "tableTo": "country",
           "columnsFrom": [
             "country_code"
           ],
@@ -1727,8 +1763,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.organizations": {
-      "name": "organizations",
+    "public.organization": {
+      "name": "organization",
       "schema": "",
       "columns": {
         "id": {
@@ -1743,17 +1779,17 @@
           "primaryKey": false,
           "notNull": true
         },
-        "slug": {
-          "name": "slug",
+        "size": {
+          "name": "size",
           "type": "text",
           "primaryKey": false,
           "notNull": true
         },
-        "logo": {
-          "name": "logo",
+        "how_heard": {
+          "name": "how_heard",
           "type": "text",
           "primaryKey": false,
-          "notNull": false
+          "notNull": true
         },
         "created_at": {
           "name": "created_at",
@@ -1768,48 +1804,18 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
-        },
-        "metadata": {
-          "name": "metadata",
-          "type": "json",
-          "primaryKey": false,
-          "notNull": false
         }
       },
-      "indexes": {
-        "organizations_slug_idx": {
-          "name": "organizations_slug_idx",
-          "columns": [
-            {
-              "expression": "slug",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
+      "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {
-        "organizations_slug_unique": {
-          "name": "organizations_slug_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "slug"
-          ]
-        }
-      },
+      "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.plan_features": {
-      "name": "plan_features",
+    "public.plan_feature": {
+      "name": "plan_feature",
       "schema": "",
       "columns": {
         "plan_id": {
@@ -1832,8 +1838,8 @@
         }
       },
       "indexes": {
-        "plan_features_pk": {
-          "name": "plan_features_pk",
+        "plan_feature_pk": {
+          "name": "plan_feature_pk",
           "columns": [
             {
               "expression": "plan_id",
@@ -1855,10 +1861,10 @@
         }
       },
       "foreignKeys": {
-        "plan_features_plan_id_pricing_plans_id_fk": {
-          "name": "plan_features_plan_id_pricing_plans_id_fk",
-          "tableFrom": "plan_features",
-          "tableTo": "pricing_plans",
+        "plan_feature_plan_id_pricing_plan_id_fk": {
+          "name": "plan_feature_plan_id_pricing_plan_id_fk",
+          "tableFrom": "plan_feature",
+          "tableTo": "pricing_plan",
           "columnsFrom": [
             "plan_id"
           ],
@@ -1868,10 +1874,10 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "plan_features_feature_id_features_id_fk": {
-          "name": "plan_features_feature_id_features_id_fk",
-          "tableFrom": "plan_features",
-          "tableTo": "features",
+        "plan_feature_feature_id_feature_id_fk": {
+          "name": "plan_feature_feature_id_feature_id_fk",
+          "tableFrom": "plan_feature",
+          "tableTo": "feature",
           "columnsFrom": [
             "feature_id"
           ],
@@ -1888,8 +1894,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.ppp_rules": {
-      "name": "ppp_rules",
+    "public.ppp_rule": {
+      "name": "ppp_rule",
       "schema": "",
       "columns": {
         "id": {
@@ -1972,8 +1978,8 @@
         }
       },
       "indexes": {
-        "ppp_rules_organization_id_idx": {
-          "name": "ppp_rules_organization_id_idx",
+        "ppp_rule_organization_id_idx": {
+          "name": "ppp_rule_organization_id_idx",
           "columns": [
             {
               "expression": "organization_id",
@@ -1987,8 +1993,8 @@
           "method": "btree",
           "with": {}
         },
-        "ppp_rules_active_idx": {
-          "name": "ppp_rules_active_idx",
+        "ppp_rule_active_idx": {
+          "name": "ppp_rule_active_idx",
           "columns": [
             {
               "expression": "is_active",
@@ -2002,8 +2008,8 @@
           "method": "btree",
           "with": {}
         },
-        "ppp_rules_priority_idx": {
-          "name": "ppp_rules_priority_idx",
+        "ppp_rule_priority_idx": {
+          "name": "ppp_rule_priority_idx",
           "columns": [
             {
               "expression": "priority",
@@ -2019,10 +2025,10 @@
         }
       },
       "foreignKeys": {
-        "ppp_rules_organization_id_organizations_id_fk": {
-          "name": "ppp_rules_organization_id_organizations_id_fk",
-          "tableFrom": "ppp_rules",
-          "tableTo": "organizations",
+        "ppp_rule_organization_id_organization_id_fk": {
+          "name": "ppp_rule_organization_id_organization_id_fk",
+          "tableFrom": "ppp_rule",
+          "tableTo": "organization",
           "columnsFrom": [
             "organization_id"
           ],
@@ -2039,8 +2045,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.pricing_plans": {
-      "name": "pricing_plans",
+    "public.pricing_plan": {
+      "name": "pricing_plan",
       "schema": "",
       "columns": {
         "id": {
@@ -2143,8 +2149,8 @@
         }
       },
       "indexes": {
-        "pricing_plans_product_id_idx": {
-          "name": "pricing_plans_product_id_idx",
+        "pricing_plan_product_id_idx": {
+          "name": "pricing_plan_product_id_idx",
           "columns": [
             {
               "expression": "product_id",
@@ -2158,8 +2164,8 @@
           "method": "btree",
           "with": {}
         },
-        "pricing_plans_status_idx": {
-          "name": "pricing_plans_status_idx",
+        "pricing_plan_status_idx": {
+          "name": "pricing_plan_status_idx",
           "columns": [
             {
               "expression": "status",
@@ -2175,10 +2181,10 @@
         }
       },
       "foreignKeys": {
-        "pricing_plans_product_id_products_id_fk": {
-          "name": "pricing_plans_product_id_products_id_fk",
-          "tableFrom": "pricing_plans",
-          "tableTo": "products",
+        "pricing_plan_product_id_product_id_fk": {
+          "name": "pricing_plan_product_id_product_id_fk",
+          "tableFrom": "pricing_plan",
+          "tableTo": "product",
           "columnsFrom": [
             "product_id"
           ],
@@ -2195,82 +2201,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.pricing_table_plans": {
-      "name": "pricing_table_plans",
-      "schema": "",
-      "columns": {
-        "pricing_table_id": {
-          "name": "pricing_table_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "plan_id": {
-          "name": "plan_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        }
-      },
-      "indexes": {
-        "pricing_table_plans_pk": {
-          "name": "pricing_table_plans_pk",
-          "columns": [
-            {
-              "expression": "pricing_table_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "plan_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "pricing_table_plans_pricing_table_id_pricing_tables_id_fk": {
-          "name": "pricing_table_plans_pricing_table_id_pricing_tables_id_fk",
-          "tableFrom": "pricing_table_plans",
-          "tableTo": "pricing_tables",
-          "columnsFrom": [
-            "pricing_table_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "pricing_table_plans_plan_id_pricing_plans_id_fk": {
-          "name": "pricing_table_plans_plan_id_pricing_plans_id_fk",
-          "tableFrom": "pricing_table_plans",
-          "tableTo": "pricing_plans",
-          "columnsFrom": [
-            "plan_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.pricing_tables": {
-      "name": "pricing_tables",
+    "public.pricing_table": {
+      "name": "pricing_table",
       "schema": "",
       "columns": {
         "id": {
@@ -2338,8 +2270,8 @@
         }
       },
       "indexes": {
-        "pricing_tables_organization_id_idx": {
-          "name": "pricing_tables_organization_id_idx",
+        "pricing_table_organization_id_idx": {
+          "name": "pricing_table_organization_id_idx",
           "columns": [
             {
               "expression": "organization_id",
@@ -2353,8 +2285,8 @@
           "method": "btree",
           "with": {}
         },
-        "pricing_tables_active_idx": {
-          "name": "pricing_tables_active_idx",
+        "pricing_table_active_idx": {
+          "name": "pricing_table_active_idx",
           "columns": [
             {
               "expression": "is_active",
@@ -2370,10 +2302,10 @@
         }
       },
       "foreignKeys": {
-        "pricing_tables_organization_id_organizations_id_fk": {
-          "name": "pricing_tables_organization_id_organizations_id_fk",
-          "tableFrom": "pricing_tables",
-          "tableTo": "organizations",
+        "pricing_table_organization_id_organization_id_fk": {
+          "name": "pricing_table_organization_id_organization_id_fk",
+          "tableFrom": "pricing_table",
+          "tableTo": "organization",
           "columnsFrom": [
             "organization_id"
           ],
@@ -2390,8 +2322,82 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.products": {
-      "name": "products",
+    "public.pricing_table_plan": {
+      "name": "pricing_table_plan",
+      "schema": "",
+      "columns": {
+        "pricing_table_id": {
+          "name": "pricing_table_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "plan_id": {
+          "name": "plan_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "pricing_table_plan_pk": {
+          "name": "pricing_table_plan_pk",
+          "columns": [
+            {
+              "expression": "pricing_table_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "plan_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "pricing_table_plan_pricing_table_id_pricing_table_id_fk": {
+          "name": "pricing_table_plan_pricing_table_id_pricing_table_id_fk",
+          "tableFrom": "pricing_table_plan",
+          "tableTo": "pricing_table",
+          "columnsFrom": [
+            "pricing_table_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "pricing_table_plan_plan_id_pricing_plan_id_fk": {
+          "name": "pricing_table_plan_plan_id_pricing_plan_id_fk",
+          "tableFrom": "pricing_table_plan",
+          "tableTo": "pricing_plan",
+          "columnsFrom": [
+            "plan_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.product": {
+      "name": "product",
       "schema": "",
       "columns": {
         "id": {
@@ -2466,8 +2472,8 @@
         }
       },
       "indexes": {
-        "products_organization_id_idx": {
-          "name": "products_organization_id_idx",
+        "product_organization_id_idx": {
+          "name": "product_organization_id_idx",
           "columns": [
             {
               "expression": "organization_id",
@@ -2481,8 +2487,8 @@
           "method": "btree",
           "with": {}
         },
-        "products_status_idx": {
-          "name": "products_status_idx",
+        "product_status_idx": {
+          "name": "product_status_idx",
           "columns": [
             {
               "expression": "status",
@@ -2498,10 +2504,10 @@
         }
       },
       "foreignKeys": {
-        "products_organization_id_organizations_id_fk": {
-          "name": "products_organization_id_organizations_id_fk",
-          "tableFrom": "products",
-          "tableTo": "organizations",
+        "product_organization_id_organization_id_fk": {
+          "name": "product_organization_id_organization_id_fk",
+          "tableFrom": "product",
+          "tableTo": "organization",
           "columnsFrom": [
             "organization_id"
           ],
@@ -2518,150 +2524,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.promotion_usage": {
-      "name": "promotion_usage",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "text",
-          "primaryKey": true,
-          "notNull": true
-        },
-        "promotion_id": {
-          "name": "promotion_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "customer_id": {
-          "name": "customer_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "order_id": {
-          "name": "order_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "used_at": {
-          "name": "used_at",
-          "type": "timestamp",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        }
-      },
-      "indexes": {
-        "promotion_usage_promotion_id_idx": {
-          "name": "promotion_usage_promotion_id_idx",
-          "columns": [
-            {
-              "expression": "promotion_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "promotion_usage_customer_id_idx": {
-          "name": "promotion_usage_customer_id_idx",
-          "columns": [
-            {
-              "expression": "customer_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "promotion_usage_promotion_customer_order_idx": {
-          "name": "promotion_usage_promotion_customer_order_idx",
-          "columns": [
-            {
-              "expression": "promotion_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "customer_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "order_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "promotion_usage_promotion_id_promotions_id_fk": {
-          "name": "promotion_usage_promotion_id_promotions_id_fk",
-          "tableFrom": "promotion_usage",
-          "tableTo": "promotions",
-          "columnsFrom": [
-            "promotion_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "promotion_usage_customer_id_customers_id_fk": {
-          "name": "promotion_usage_customer_id_customers_id_fk",
-          "tableFrom": "promotion_usage",
-          "tableTo": "customers",
-          "columnsFrom": [
-            "customer_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "promotion_usage_order_id_orders_id_fk": {
-          "name": "promotion_usage_order_id_orders_id_fk",
-          "tableFrom": "promotion_usage",
-          "tableTo": "orders",
-          "columnsFrom": [
-            "order_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {},
-      "isRLSEnabled": false
-    },
-    "public.promotions": {
-      "name": "promotions",
+    "public.promotion": {
+      "name": "promotion",
       "schema": "",
       "columns": {
         "id": {
@@ -2787,8 +2651,8 @@
         }
       },
       "indexes": {
-        "promotions_organization_id_idx": {
-          "name": "promotions_organization_id_idx",
+        "promotion_organization_id_idx": {
+          "name": "promotion_organization_id_idx",
           "columns": [
             {
               "expression": "organization_id",
@@ -2802,8 +2666,8 @@
           "method": "btree",
           "with": {}
         },
-        "promotions_code_idx": {
-          "name": "promotions_code_idx",
+        "promotion_code_idx": {
+          "name": "promotion_code_idx",
           "columns": [
             {
               "expression": "code",
@@ -2817,8 +2681,8 @@
           "method": "btree",
           "with": {}
         },
-        "promotions_active_idx": {
-          "name": "promotions_active_idx",
+        "promotion_active_idx": {
+          "name": "promotion_active_idx",
           "columns": [
             {
               "expression": "is_active",
@@ -2832,8 +2696,8 @@
           "method": "btree",
           "with": {}
         },
-        "promotions_valid_from_idx": {
-          "name": "promotions_valid_from_idx",
+        "promotion_valid_from_idx": {
+          "name": "promotion_valid_from_idx",
           "columns": [
             {
               "expression": "valid_from",
@@ -2849,10 +2713,10 @@
         }
       },
       "foreignKeys": {
-        "promotions_organization_id_organizations_id_fk": {
-          "name": "promotions_organization_id_organizations_id_fk",
-          "tableFrom": "promotions",
-          "tableTo": "organizations",
+        "promotion_organization_id_organization_id_fk": {
+          "name": "promotion_organization_id_organization_id_fk",
+          "tableFrom": "promotion",
+          "tableTo": "organization",
           "columnsFrom": [
             "organization_id"
           ],
@@ -2865,8 +2729,8 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "promotions_code_unique": {
-          "name": "promotions_code_unique",
+        "promotion_code_unique": {
+          "name": "promotion_code_unique",
           "nullsNotDistinct": false,
           "columns": [
             "code"
@@ -2877,8 +2741,150 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.sessions": {
-      "name": "sessions",
+    "public.promotion_usage": {
+      "name": "promotion_usage",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "promotion_id": {
+          "name": "promotion_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "customer_id": {
+          "name": "customer_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "order_id": {
+          "name": "order_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "used_at": {
+          "name": "used_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "promotion_usage_promotion_id_idx": {
+          "name": "promotion_usage_promotion_id_idx",
+          "columns": [
+            {
+              "expression": "promotion_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "promotion_usage_customer_id_idx": {
+          "name": "promotion_usage_customer_id_idx",
+          "columns": [
+            {
+              "expression": "customer_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "promotion_usage_promotion_customer_order_idx": {
+          "name": "promotion_usage_promotion_customer_order_idx",
+          "columns": [
+            {
+              "expression": "promotion_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "customer_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "order_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "promotion_usage_promotion_id_promotion_id_fk": {
+          "name": "promotion_usage_promotion_id_promotion_id_fk",
+          "tableFrom": "promotion_usage",
+          "tableTo": "promotion",
+          "columnsFrom": [
+            "promotion_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "promotion_usage_customer_id_customer_id_fk": {
+          "name": "promotion_usage_customer_id_customer_id_fk",
+          "tableFrom": "promotion_usage",
+          "tableTo": "customer",
+          "columnsFrom": [
+            "customer_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "promotion_usage_order_id_order_id_fk": {
+          "name": "promotion_usage_order_id_order_id_fk",
+          "tableFrom": "promotion_usage",
+          "tableTo": "order",
+          "columnsFrom": [
+            "order_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.session": {
+      "name": "session",
       "schema": "",
       "columns": {
         "id": {
@@ -2933,8 +2939,8 @@
         }
       },
       "indexes": {
-        "sessions_token_idx": {
-          "name": "sessions_token_idx",
+        "session_token_idx": {
+          "name": "session_token_idx",
           "columns": [
             {
               "expression": "token",
@@ -2948,8 +2954,8 @@
           "method": "btree",
           "with": {}
         },
-        "sessions_user_id_idx": {
-          "name": "sessions_user_id_idx",
+        "session_user_id_idx": {
+          "name": "session_user_id_idx",
           "columns": [
             {
               "expression": "user_id",
@@ -2965,10 +2971,10 @@
         }
       },
       "foreignKeys": {
-        "sessions_user_id_users_id_fk": {
-          "name": "sessions_user_id_users_id_fk",
-          "tableFrom": "sessions",
-          "tableTo": "users",
+        "session_user_id_user_id_fk": {
+          "name": "session_user_id_user_id_fk",
+          "tableFrom": "session",
+          "tableTo": "user",
           "columnsFrom": [
             "user_id"
           ],
@@ -2981,8 +2987,8 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "sessions_token_unique": {
-          "name": "sessions_token_unique",
+        "session_token_unique": {
+          "name": "session_token_unique",
           "nullsNotDistinct": false,
           "columns": [
             "token"
@@ -2993,8 +2999,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.subscriptions": {
-      "name": "subscriptions",
+    "public.subscription": {
+      "name": "subscription",
       "schema": "",
       "columns": {
         "id": {
@@ -3093,8 +3099,8 @@
         }
       },
       "indexes": {
-        "subscriptions_organization_id_idx": {
-          "name": "subscriptions_organization_id_idx",
+        "subscription_organization_id_idx": {
+          "name": "subscription_organization_id_idx",
           "columns": [
             {
               "expression": "organization_id",
@@ -3108,8 +3114,8 @@
           "method": "btree",
           "with": {}
         },
-        "subscriptions_customer_id_idx": {
-          "name": "subscriptions_customer_id_idx",
+        "subscription_customer_id_idx": {
+          "name": "subscription_customer_id_idx",
           "columns": [
             {
               "expression": "customer_id",
@@ -3123,8 +3129,8 @@
           "method": "btree",
           "with": {}
         },
-        "subscriptions_plan_id_idx": {
-          "name": "subscriptions_plan_id_idx",
+        "subscription_plan_id_idx": {
+          "name": "subscription_plan_id_idx",
           "columns": [
             {
               "expression": "plan_id",
@@ -3138,8 +3144,8 @@
           "method": "btree",
           "with": {}
         },
-        "subscriptions_status_idx": {
-          "name": "subscriptions_status_idx",
+        "subscription_status_idx": {
+          "name": "subscription_status_idx",
           "columns": [
             {
               "expression": "status",
@@ -3153,8 +3159,8 @@
           "method": "btree",
           "with": {}
         },
-        "subscriptions_external_id_idx": {
-          "name": "subscriptions_external_id_idx",
+        "subscription_external_id_idx": {
+          "name": "subscription_external_id_idx",
           "columns": [
             {
               "expression": "external_id",
@@ -3170,10 +3176,10 @@
         }
       },
       "foreignKeys": {
-        "subscriptions_organization_id_organizations_id_fk": {
-          "name": "subscriptions_organization_id_organizations_id_fk",
-          "tableFrom": "subscriptions",
-          "tableTo": "organizations",
+        "subscription_organization_id_organization_id_fk": {
+          "name": "subscription_organization_id_organization_id_fk",
+          "tableFrom": "subscription",
+          "tableTo": "organization",
           "columnsFrom": [
             "organization_id"
           ],
@@ -3183,10 +3189,10 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "subscriptions_customer_id_customers_id_fk": {
-          "name": "subscriptions_customer_id_customers_id_fk",
-          "tableFrom": "subscriptions",
-          "tableTo": "customers",
+        "subscription_customer_id_customer_id_fk": {
+          "name": "subscription_customer_id_customer_id_fk",
+          "tableFrom": "subscription",
+          "tableTo": "customer",
           "columnsFrom": [
             "customer_id"
           ],
@@ -3196,10 +3202,10 @@
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
-        "subscriptions_plan_id_pricing_plans_id_fk": {
-          "name": "subscriptions_plan_id_pricing_plans_id_fk",
-          "tableFrom": "subscriptions",
-          "tableTo": "pricing_plans",
+        "subscription_plan_id_pricing_plan_id_fk": {
+          "name": "subscription_plan_id_pricing_plan_id_fk",
+          "tableFrom": "subscription",
+          "tableTo": "pricing_plan",
           "columnsFrom": [
             "plan_id"
           ],
@@ -3212,8 +3218,8 @@
       },
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "subscriptions_external_id_unique": {
-          "name": "subscriptions_external_id_unique",
+        "subscription_external_id_unique": {
+          "name": "subscription_external_id_unique",
           "nullsNotDistinct": false,
           "columns": [
             "external_id"
@@ -3224,8 +3230,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.users": {
-      "name": "users",
+    "public.user": {
+      "name": "user",
       "schema": "",
       "columns": {
         "id": {
@@ -3234,8 +3240,14 @@
           "primaryKey": true,
           "notNull": true
         },
-        "name": {
-          "name": "name",
+        "first_name": {
+          "name": "first_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "last_name": {
+          "name": "last_name",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -3283,8 +3295,8 @@
         }
       },
       "indexes": {
-        "users_email_idx": {
-          "name": "users_email_idx",
+        "user_email_idx": {
+          "name": "user_email_idx",
           "columns": [
             {
               "expression": "email",
@@ -3298,8 +3310,8 @@
           "method": "btree",
           "with": {}
         },
-        "users_role_idx": {
-          "name": "users_role_idx",
+        "user_role_idx": {
+          "name": "user_role_idx",
           "columns": [
             {
               "expression": "role",
@@ -3317,8 +3329,8 @@
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "users_email_unique": {
-          "name": "users_email_unique",
+        "user_email_unique": {
+          "name": "user_email_unique",
           "nullsNotDistinct": false,
           "columns": [
             "email"
@@ -3329,8 +3341,8 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.verifications": {
-      "name": "verifications",
+    "public.verification": {
+      "name": "verification",
       "schema": "",
       "columns": {
         "id": {
@@ -3373,8 +3385,8 @@
         }
       },
       "indexes": {
-        "verifications_identifier_idx": {
-          "name": "verifications_identifier_idx",
+        "verification_identifier_idx": {
+          "name": "verification_identifier_idx",
           "columns": [
             {
               "expression": "identifier",

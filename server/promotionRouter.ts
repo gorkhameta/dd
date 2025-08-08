@@ -1,12 +1,10 @@
-import { products, promotions } from "@/db";
+import { product, promotion } from "@/db/schema";
 import { createTRPCRouter, orgAccessProcedure, orgAdminProcedure } from "@/trpc/init";
 import { and, eq } from "drizzle-orm";
 import z from "zod";
 import { TRPCError } from "@trpc/server";
 
-
 export const promotionRouter = createTRPCRouter({
-
     create: orgAdminProcedure
         .input(
             z.object({
@@ -30,17 +28,17 @@ export const promotionRouter = createTRPCRouter({
         .mutation(async ({ ctx, input }) => {
             if (input.applicableProducts) {
                 for (const productId of input.applicableProducts) {
-                    const [product] = await ctx.db
+                    const [productResult] = await ctx.db
                         .select()
-                        .from(products)
-                        .where(and(eq(products.id, productId), eq(products.organizationId, input.organizationId)))
+                        .from(product)
+                        .where(and(eq(product.id, productId), eq(product.organizationId, input.organizationId)))
                         .limit(1);
-                    if (!product) throw new TRPCError({ code: "NOT_FOUND", message: `Product ${productId} not found` });
+                    if (!productResult) throw new TRPCError({ code: "NOT_FOUND", message: `Product ${productId} not found` });
                 }
             }
 
-            const [promotion] = await ctx.db.insert(promotions).values(input).returning();
-            return promotion;
+            const [promotionResult] = await ctx.db.insert(promotion).values(input).returning();
+            return promotionResult;
         }),
 
     update: orgAdminProcedure
@@ -67,46 +65,46 @@ export const promotionRouter = createTRPCRouter({
         .mutation(async ({ ctx, input }) => {
             if (input.applicableProducts) {
                 for (const productId of input.applicableProducts) {
-                    const [product] = await ctx.db
+                    const [productResult] = await ctx.db
                         .select()
-                        .from(products)
-                        .where(and(eq(products.id, productId), eq(products.organizationId, input.organizationId)))
+                        .from(product)
+                        .where(and(eq(product.id, productId), eq(product.organizationId, input.organizationId)))
                         .limit(1);
-                    if (!product) throw new TRPCError({ code: "NOT_FOUND", message: `Product ${productId} not found` });
+                    if (!productResult) throw new TRPCError({ code: "NOT_FOUND", message: `Product ${productId} not found` });
                 }
             }
 
-            const [promotion] = await ctx.db
-                .update(promotions)
+            const [promotionResult] = await ctx.db
+                .update(promotion)
                 .set({ ...input, updatedAt: new Date() })
-                .where(and(eq(promotions.id, input.id), eq(promotions.organizationId, input.organizationId)))
+                .where(and(eq(promotion.id, input.id), eq(promotion.organizationId, input.organizationId)))
                 .returning();
 
-            if (!promotion) throw new TRPCError({ code: "NOT_FOUND", message: "Promotion not found" });
+            if (!promotionResult) throw new TRPCError({ code: "NOT_FOUND", message: "Promotion not found" });
 
-            return promotion;
+            return promotionResult;
         }),
 
     validate: orgAccessProcedure
         .input(z.object({ organizationId: z.string(), code: z.string() }))
         .query(async ({ ctx, input }) => {
-            const [promotion] = await ctx.db
+            const [promotionResult] = await ctx.db
                 .select()
-                .from(promotions)
+                .from(promotion)
                 .where(
                     and(
-                        eq(promotions.organizationId, input.organizationId),
-                        eq(promotions.code, input.code),
-                        eq(promotions.isActive, true),
-                        eq(promotions.validFrom, new Date()),
-                        eq(promotions.validTo, new Date()),
+                        eq(promotion.organizationId, input.organizationId),
+                        eq(promotion.code, input.code),
+                        eq(promotion.isActive, true),
+                        eq(promotion.validFrom, new Date()),
+                        eq(promotion.validTo, new Date()),
                     ),
                 )
                 .limit(1);
 
-            if (!promotion) throw new TRPCError({ code: "NOT_FOUND", message: "Invalid promotion code" });
+            if (!promotionResult) throw new TRPCError({ code: "NOT_FOUND", message: "Invalid promotion code" });
 
-            return promotion;
+            return promotionResult;
         }),
 
     list: orgAccessProcedure
@@ -114,21 +112,21 @@ export const promotionRouter = createTRPCRouter({
         .query(async ({ ctx, input }) => {
             return await ctx.db
                 .select()
-                .from(promotions)
-                .where(eq(promotions.organizationId, input.organizationId));
+                .from(promotion)
+                .where(eq(promotion.organizationId, input.organizationId));
         }),
 
     get: orgAccessProcedure
         .input(z.object({ organizationId: z.string(), id: z.string() }))
         .query(async ({ ctx, input }) => {
-            const [promotion] = await ctx.db
+            const [promotionResult] = await ctx.db
                 .select()
-                .from(promotions)
-                .where(and(eq(promotions.id, input.id), eq(promotions.organizationId, input.organizationId)))
+                .from(promotion)
+                .where(and(eq(promotion.id, input.id), eq(promotion.organizationId, input.organizationId)))
                 .limit(1);
 
-            if (!promotion) throw new TRPCError({ code: "NOT_FOUND", message: "Promotion not found" });
+            if (!promotionResult) throw new TRPCError({ code: "NOT_FOUND", message: "Promotion not found" });
 
-            return promotion;
+            return promotionResult;
         }),
 });

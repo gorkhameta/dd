@@ -5,7 +5,7 @@ import { cache } from 'react';
 import { initTRPC, TRPCError } from '@trpc/server';
 import superjson from 'superjson';
 import { and, eq } from 'drizzle-orm';
-import { members } from '@/db/schema';
+import { member } from '@/db/schema';
 import { z } from 'zod';
 import { db } from '@/db';
 
@@ -51,21 +51,21 @@ const requireOrgAccess = t.middleware(async ({ ctx, input, next }) => {
 
   const userId = ctx.auth!.session.userId;
 
-  const member = await ctx.db.query.members.findFirst({
+  const members = await ctx.db.query.member.findFirst({
     where: and(
-      eq(members.userId, userId),
-      eq(members.organizationId, organizationId),
+      eq(member.userId, userId),
+      eq(member.organizationId, organizationId),
     ),
   });
 
-  if (!member) {
+  if (!members) {
     throw new TRPCError({ code: 'FORBIDDEN', message: 'User is not a member of this organization' });
   }
 
   return next({
     ctx: {
       ...ctx,
-      member,
+      members,
     },
   });
 });
@@ -80,22 +80,22 @@ const requireOrgAdmin = t.middleware(async ({ ctx, input, next }) => {
 
   const userId = ctx.auth!.session.userId;
 
-  const member = await ctx.db.query.members.findFirst({
+  const members = await ctx.db.query.member.findFirst({
     where: and(
-      eq(members.userId, userId),
-      eq(members.organizationId, organizationId),
-      eq(members.role, 'admin'), // adjust if you use enums
+      eq(member.userId, userId),
+      eq(member.organizationId, organizationId),
+      eq(member.role, 'admin'), // adjust if you use enums
     ),
   });
 
-  if (!member) {
+  if (!members) {
     throw new TRPCError({ code: 'FORBIDDEN', message: 'User is not an admin of this organization' });
   }
 
   return next({
     ctx: {
       ...ctx,
-      member,
+      members,
     },
   });
 });

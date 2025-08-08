@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { TRPCError } from "@trpc/server";
 import { and, eq, isNull } from "drizzle-orm";
-import { subscriptions, orders, customers, integrations, analyticsEvents } from "@/db";
+import { subscription, order, customer, integration, analyticsEvent } from "@/db/schema";
 
 // Define type for integration settings to ensure safe access to planMapping
 type IntegrationSettings = {
@@ -35,28 +35,28 @@ const WebhookEventSchema = z.object({
     signature: z.string(), // For webhook signature verification
 });
 
-// Fetch webhook secret from integrations table
+// Fetch webhook secret from integration table
 async function getWebhookSecret(db: any, organizationId: string, provider: string): Promise<string> {
-    const [integration] = await db
-        .select({ webhookSecret: integrations.webhookSecret })
-        .from(integrations)
+    const [integrationRecord] = await db
+        .select({ webhookSecret: integration.webhookSecret })
+        .from(integration)
         .where(
             and(
-                eq(integrations.organizationId, organizationId),
-                eq(integrations.provider, provider),
-                eq(integrations.isActive, true),
+                eq(integration.organizationId, organizationId),
+                eq(integration.provider, provider),
+                eq(integration.isActive, true),
             ),
         )
         .limit(1);
 
-    if (!integration?.webhookSecret) {
+    if (!integrationRecord?.webhookSecret) {
         throw new TRPCError({
             code: "NOT_FOUND",
             message: `No active integration found for provider ${provider}`,
         });
     }
 
-    return integration.webhookSecret;
+    return integrationRecord.webhookSecret;
 }
 
 // Placeholder for webhook signature verification (provider-specific)
@@ -66,20 +66,20 @@ async function verifyWebhookSignature(payload: any, signature: string, secret: s
     return true; // Replace with actual verification logic
 }
 
-// Map external plan ID to internal plan ID (using integrations.settings)
+// Map external plan ID to internal plan ID (using integration.settings)
 async function mapExternalPlanToInternal(db: any, organizationId: string, externalPlanId: string): Promise<string | null> {
-    const [integration] = await db
-        .select({ settings: integrations.settings })
-        .from(integrations)
+    const [integrationRecord] = await db
+        .select({ settings: integration.settings })
+        .from(integration)
         .where(
             and(
-                eq(integrations.organizationId, organizationId),
-                eq(integrations.isActive, true),
+                eq(integration.organizationId, organizationId),
+                eq(integration.isActive, true),
             ),
         )
         .limit(1);
 
-    const settings = integration?.settings as IntegrationSettings | undefined;
+    const settings = integrationRecord?.settings as IntegrationSettings | undefined;
 
     if (settings?.planMapping?.[externalPlanId]) {
         return settings.planMapping[externalPlanId];
@@ -117,30 +117,30 @@ export async function processPaymentWebhook(
     }
 
     // Find customer by external ID
-    const [customer] = await db
+    const [customerRecord] = await db
         .select()
-        .from(customers)
+        .from(customer)
         .where(
             and(
-                eq(customers.externalId, data.customerId),
-                eq(customers.organizationId, organizationId),
+                eq(customer.externalId, data.customerId),
+                eq(customer.organizationId, organizationId),
             ),
         )
         .limit(1);
 
-    if (!customer) {
+    if (!customerRecord) {
         throw new TRPCError({
             code: "NOT_FOUND",
             message: `Customer with external ID ${data.customerId} not found in organization ${organizationId}`,
         });
     }
 
-    // Log webhook event to analyticsEvents
-    await db.insert(analyticsEvents).values({
+    // Log webhook event to analyticsEvent
+    await db.insert(analyticsEvent).values({
         organizationId,
         eventType: `webhook:${eventType}`,
         eventData: { payload: data },
-        customerId: customer.id,
+        customerId: customerRecord.id,
         timestamp: new Date(),
     });
 
@@ -149,71 +149,71 @@ export async function processPaymentWebhook(
         case "invoice.paid": {
             // Update order and subscription status
             const orderConditions = [
-                eq(orders.customerId, customer.id),
-                eq(orders.organizationId, organizationId),
-                eq(orders.status, "pending"),
+                eq(order.customerId, customerRecord.id),
+                eq(order.organizationId, organizationId),
+                eq(order.status, "pending"),
             ];
             if (data.amount) {
-                orderConditions.push(eq(orders.finalAmount, data.amount));
+                orderConditions.push(eq(order.finalAmount, data.amount));
             }
 
-            const [order] = await db
+            const [orderRecord] = await db
                 .select()
-                .from(orders)
+                .from(order)
                 .where(and(...orderConditions))
                 .limit(1);
 
-            if (order) {
+            if (orderRecord) {
                 await db
-                    .update(orders)
+                    .update(order)
                     .set({
                         status: "completed",
                         updatedAt: new Date(),
                     })
-                    .where(eq(orders.id, order.id));
+                    .where(eq(order.id, orderRecord.id));
 
                 // Update customer totalSpent and ordersCount
                 await db
-                    .update(customers)
+                    .update(customer)
                     .set({
-                        totalSpent: customer.totalSpent + (data.amount || order.finalAmount),
-                        ordersCount: customer.ordersCount + 1,
+                        totalSpent: customerRecord.totalSpent + (data.amount || orderRecord.finalAmount),
+                        ordersCount: customerRecord.ordersCount + 1,
                         lastOrderAt: new Date(),
                         updatedAt: new Date(),
                     })
-                    .where(eq(customers.id, customer.id));
+                    .where(eq(customer.id, customerRecord.id));
             }
 
             if (data.subscriptionId) {
-                const [subscription] = await db
+                const [subscriptionRecord] = await db
                     .select()
-                    .from(subscriptions)
+                    .from(subscription)
                     .where(
                         and(
-                            eq(subscriptions.customerId, customer.id),
-                            eq(subscriptions.organizationId, organizationId),
-                            eq(subscriptions.externalId, data.subscriptionId),
+                            eq(subscription.customerId, customerRecord.id),
+                            eq(subscription.organizationId, organizationId),
+                            eq(subscription.externalId, data.subscriptionId),
                         ),
                     )
                     .limit(1);
 
-                if (subscription) {
+                if (subscriptionRecord) {
                     await db
-                        .update(subscriptions)
+                        .update(subscription)
                         .set({
                             status: "active",
-                            currentPeriodStart: data.periodStart ? new Date(data.periodStart) : subscription.currentPeriodStart,
-                            currentPeriodEnd: data.periodEnd ? new Date(data.periodEnd) : subscription.currentPeriodEnd,
+                            currentPeriodStart: data.periodStart ? new Date(data.periodStart) : subscriptionRecord.currentPeriodStart,
+                            currentPeriodEnd: data.periodEnd ? new Date(data.periodEnd) : subscriptionRecord.currentPeriodEnd,
                             updatedAt: new Date(),
-                            metadata: data.metadata || subscription.metadata,
+                            metadata: data.metadata || subscriptionRecord.metadata,
                         })
-                        .where(eq(subscriptions.id, subscription.id));
+                        .where(eq(subscription.id, subscriptionRecord.id));
                 }
 
-                return { eventType, status: "success", orderId: order?.id, subscriptionId: subscription?.id };
+                return { eventType, status: "success", orderId: orderRecord?.id, subscriptionId: subscriptionRecord?.id };
             }
 
-            return { eventType, status: "success", orderId: order?.id, subscriptionId: null };
+            return { eventType, status: "success", orderId: orderRecord?.id, subscriptionId: null };
         }
 
         case "invoice.payment_failed": {
@@ -224,41 +224,41 @@ export async function processPaymentWebhook(
                 });
             }
 
-            const [subscription] = await db
+            const [subscriptionRecord] = await db
                 .select()
-                .from(subscriptions)
+                .from(subscription)
                 .where(
                     and(
-                        eq(subscriptions.customerId, customer.id),
-                        eq(subscriptions.organizationId, organizationId),
-                        eq(subscriptions.externalId, data.subscriptionId),
+                        eq(subscription.customerId, customerRecord.id),
+                        eq(subscription.organizationId, organizationId),
+                        eq(subscription.externalId, data.subscriptionId),
                     ),
                 )
                 .limit(1);
 
-            if (subscription) {
+            if (subscriptionRecord) {
                 await db
-                    .update(subscriptions)
+                    .update(subscription)
                     .set({
                         status: "past_due",
                         updatedAt: new Date(),
                     })
-                    .where(eq(subscriptions.id, subscription.id));
+                    .where(eq(subscription.id, subscriptionRecord.id));
             }
 
-            return { eventType, status: "success", subscriptionId: subscription?.id };
+            return { eventType, status: "success", subscriptionId: subscriptionRecord?.id };
         }
 
         case "subscription.created": {
-            const [subscription] = data.subscriptionId
+            const [subscriptionRecord] = data.subscriptionId
                 ? await db
                     .select()
-                    .from(subscriptions)
+                    .from(subscription)
                     .where(
                         and(
-                            eq(subscriptions.customerId, customer.id),
-                            eq(subscriptions.organizationId, organizationId),
-                            eq(subscriptions.externalId, data.subscriptionId),
+                            eq(subscription.customerId, customerRecord.id),
+                            eq(subscription.organizationId, organizationId),
+                            eq(subscription.externalId, data.subscriptionId),
                         ),
                     )
                     .limit(1)
@@ -266,12 +266,12 @@ export async function processPaymentWebhook(
 
             const internalPlanId = data.planId ? await mapExternalPlanToInternal(db, organizationId, data.planId) : null;
 
-            if (!subscription) {
+            if (!subscriptionRecord) {
                 // Create new subscription
-                await db.insert(subscriptions).values({
+                await db.insert(subscription).values({
                     id: crypto.randomUUID(),
-                    organizationId: customer.organizationId,
-                    customerId: customer.id,
+                    organizationId: customerRecord.organizationId,
+                    customerId: customerRecord.id,
                     planId: internalPlanId, // May be null if mapping fails
                     externalId: data.subscriptionId || null,
                     status: data.trialEnd ? "trialing" : "active",
@@ -296,41 +296,41 @@ export async function processPaymentWebhook(
                 });
             }
 
-            const [subscription] = await db
+            const [subscriptionRecord] = await db
                 .select()
-                .from(subscriptions)
+                .from(subscription)
                 .where(
                     and(
-                        eq(subscriptions.customerId, customer.id),
-                        eq(subscriptions.organizationId, organizationId),
-                        eq(subscriptions.externalId, data.subscriptionId),
+                        eq(subscription.customerId, customerRecord.id),
+                        eq(subscription.organizationId, organizationId),
+                        eq(subscription.externalId, data.subscriptionId),
                     ),
                 )
                 .limit(1);
 
-            if (!subscription) {
+            if (!subscriptionRecord) {
                 throw new TRPCError({
                     code: "NOT_FOUND",
                     message: `Subscription with external ID ${data.subscriptionId} not found`,
                 });
             }
 
-            const internalPlanId = data.planId ? await mapExternalPlanToInternal(db, organizationId, data.planId) : subscription.planId;
+            const internalPlanId = data.planId ? await mapExternalPlanToInternal(db, organizationId, data.planId) : subscriptionRecord.planId;
 
             await db
-                .update(subscriptions)
+                .update(subscription)
                 .set({
                     planId: internalPlanId,
-                    status: data.status || subscription.status,
-                    currentPeriodStart: data.periodStart ? new Date(data.periodStart) : subscription.currentPeriodStart,
-                    currentPeriodEnd: data.periodEnd ? new Date(data.periodEnd) : subscription.currentPeriodEnd,
-                    cancelAtPeriodEnd: data.cancelAtPeriodEnd ?? subscription.cancelAtPeriodEnd,
-                    metadata: data.metadata || subscription.metadata,
+                    status: data.status || subscriptionRecord.status,
+                    currentPeriodStart: data.periodStart ? new Date(data.periodStart) : subscriptionRecord.currentPeriodStart,
+                    currentPeriodEnd: data.periodEnd ? new Date(data.periodEnd) : subscriptionRecord.currentPeriodEnd,
+                    cancelAtPeriodEnd: data.cancelAtPeriodEnd ?? subscriptionRecord.cancelAtPeriodEnd,
+                    metadata: data.metadata || subscriptionRecord.metadata,
                     updatedAt: new Date(),
                 })
-                .where(eq(subscriptions.id, subscription.id));
+                .where(eq(subscription.id, subscriptionRecord.id));
 
-            return { eventType, status: "success", subscriptionId: subscription.id };
+            return { eventType, status: "success", subscriptionId: subscriptionRecord.id };
         }
 
         case "subscription.cancelled": {
@@ -341,19 +341,19 @@ export async function processPaymentWebhook(
                 });
             }
 
-            const [subscription] = await db
+            const [subscriptionRecord] = await db
                 .select()
-                .from(subscriptions)
+                .from(subscription)
                 .where(
                     and(
-                        eq(subscriptions.customerId, customer.id),
-                        eq(subscriptions.organizationId, organizationId),
-                        eq(subscriptions.externalId, data.subscriptionId),
+                        eq(subscription.customerId, customerRecord.id),
+                        eq(subscription.organizationId, organizationId),
+                        eq(subscription.externalId, data.subscriptionId),
                     ),
                 )
                 .limit(1);
 
-            if (!subscription) {
+            if (!subscriptionRecord) {
                 throw new TRPCError({
                     code: "NOT_FOUND",
                     message: `Subscription with external ID ${data.subscriptionId} not found`,
@@ -361,16 +361,16 @@ export async function processPaymentWebhook(
             }
 
             await db
-                .update(subscriptions)
+                .update(subscription)
                 .set({
                     status: "cancelled",
                     cancelAtPeriodEnd: data.cancelAtPeriodEnd ?? false,
                     cancelledAt: data.cancelAtPeriodEnd ? null : new Date(),
                     updatedAt: new Date(),
                 })
-                .where(eq(subscriptions.id, subscription.id));
+                .where(eq(subscription.id, subscriptionRecord.id));
 
-            return { eventType, status: "success", subscriptionId: subscription.id };
+            return { eventType, status: "success", subscriptionId: subscriptionRecord.id };
         }
 
         case "subscription.trial_ended": {
@@ -381,19 +381,19 @@ export async function processPaymentWebhook(
                 });
             }
 
-            const [subscription] = await db
+            const [subscriptionRecord] = await db
                 .select()
-                .from(subscriptions)
+                .from(subscription)
                 .where(
                     and(
-                        eq(subscriptions.customerId, customer.id),
-                        eq(subscriptions.organizationId, organizationId),
-                        eq(subscriptions.externalId, data.subscriptionId),
+                        eq(subscription.customerId, customerRecord.id),
+                        eq(subscription.organizationId, organizationId),
+                        eq(subscription.externalId, data.subscriptionId),
                     ),
                 )
                 .limit(1);
 
-            if (!subscription) {
+            if (!subscriptionRecord) {
                 throw new TRPCError({
                     code: "NOT_FOUND",
                     message: `Subscription with external ID ${data.subscriptionId} not found`,
@@ -401,15 +401,15 @@ export async function processPaymentWebhook(
             }
 
             await db
-                .update(subscriptions)
+                .update(subscription)
                 .set({
                     status: "active",
                     trialEnd: null,
                     updatedAt: new Date(),
                 })
-                .where(eq(subscriptions.id, subscription.id));
+                .where(eq(subscription.id, subscriptionRecord.id));
 
-            return { eventType, status: "success", subscriptionId: subscription.id };
+            return { eventType, status: "success", subscriptionId: subscriptionRecord.id };
         }
 
         default:

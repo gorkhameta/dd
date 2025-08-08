@@ -1,4 +1,4 @@
-import { countries, customers } from "@/db";
+import { country, customer } from "@/db/schema";
 import { createTRPCRouter, orgAccessProcedure, orgAdminProcedure } from "@/trpc/init";
 import { and, eq } from "drizzle-orm";
 import z from "zod";
@@ -18,15 +18,15 @@ export const customerRouter = createTRPCRouter({
             }),
         )
         .mutation(async ({ ctx, input }) => {
-            const [country] = await ctx.db
+            const [countryData] = await ctx.db
                 .select()
-                .from(countries)
-                .where(eq(countries.code, input.countryCode))
+                .from(country)
+                .where(eq(country.code, input.countryCode))
                 .limit(1);
-            if (!country) throw new TRPCError({ code: "NOT_FOUND", message: "Country not found" });
+            if (!countryData) throw new TRPCError({ code: "NOT_FOUND", message: "Country not found" });
 
-            const [customer] = await ctx.db.insert(customers).values(input).returning();
-            return customer;
+            const [customerData] = await ctx.db.insert(customer).values(input).returning();
+            return customerData;
         }),
 
     update: orgAdminProcedure
@@ -44,31 +44,31 @@ export const customerRouter = createTRPCRouter({
         )
         .mutation(async ({ ctx, input }) => {
             if (input.countryCode) {
-                const [country] = await ctx.db
+                const [countryData] = await ctx.db
                     .select()
-                    .from(countries)
-                    .where(eq(countries.code, input.countryCode))
+                    .from(country)
+                    .where(eq(country.code, input.countryCode))
                     .limit(1);
-                if (!country) throw new TRPCError({ code: "NOT_FOUND", message: "Country not found" });
+                if (!countryData) throw new TRPCError({ code: "NOT_FOUND", message: "Country not found" });
             }
 
-            const [customer] = await ctx.db
-                .update(customers)
+            const [customerData] = await ctx.db
+                .update(customer)
                 .set({ ...input, updatedAt: new Date() })
-                .where(and(eq(customers.id, input.id), eq(customers.organizationId, input.organizationId)))
+                .where(and(eq(customer.id, input.id), eq(customer.organizationId, input.organizationId)))
                 .returning();
 
-            if (!customer) throw new TRPCError({ code: "NOT_FOUND", message: "Customer not found" });
+            if (!customerData) throw new TRPCError({ code: "NOT_FOUND", message: "Customer not found" });
 
-            return customer;
+            return customerData;
         }),
 
     delete: orgAdminProcedure
         .input(z.object({ organizationId: z.string(), id: z.string() }))
         .mutation(async ({ ctx, input }) => {
             await ctx.db
-                .delete(customers)
-                .where(and(eq(customers.id, input.id), eq(customers.organizationId, input.organizationId)));
+                .delete(customer)
+                .where(and(eq(customer.id, input.id), eq(customer.organizationId, input.organizationId)));
             return { success: true };
         }),
 
@@ -77,21 +77,21 @@ export const customerRouter = createTRPCRouter({
         .query(async ({ ctx, input }) => {
             return await ctx.db
                 .select()
-                .from(customers)
-                .where(eq(customers.organizationId, input.organizationId));
+                .from(customer)
+                .where(eq(customer.organizationId, input.organizationId));
         }),
 
     get: orgAccessProcedure
         .input(z.object({ organizationId: z.string(), id: z.string() }))
         .query(async ({ ctx, input }) => {
-            const [customer] = await ctx.db
+            const [customerData] = await ctx.db
                 .select()
-                .from(customers)
-                .where(and(eq(customers.id, input.id), eq(customers.organizationId, input.organizationId)))
+                .from(customer)
+                .where(and(eq(customer.id, input.id), eq(customer.organizationId, input.organizationId)))
                 .limit(1);
 
-            if (!customer) throw new TRPCError({ code: "NOT_FOUND", message: "Customer not found" });
+            if (!customerData) throw new TRPCError({ code: "NOT_FOUND", message: "Customer not found" });
 
-            return customer;
+            return customerData;
         }),
 });

@@ -1,6 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import { eq, and } from "drizzle-orm";
-import { pricingPlans, promotions, countries, pppRules } from "@/db/schema";
+import { pricingPlan, promotion, country, pppRule } from "@/db/schema";
 
 export async function calculatePrice(
   db: any,
@@ -9,7 +9,7 @@ export async function calculatePrice(
   promotionCode?: string,
   organizationId?: string,
 ) {
-  const [plan] = await db.select().from(pricingPlans).where(eq(pricingPlans.id, planId)).limit(1);
+  const [plan] = await db.select().from(pricingPlan).where(eq(pricingPlan.id, planId)).limit(1);
   if (!plan) throw new TRPCError({ code: "NOT_FOUND", message: "Plan not found" });
 
   let basePrice = plan.price;
@@ -17,47 +17,47 @@ export async function calculatePrice(
   let promotionDiscount = 0;
 
   if (countryCode && organizationId) {
-    const [country] = await db.select().from(countries).where(eq(countries.code, countryCode)).limit(1);
-    if (country) {
-      const [pppRule] = await db
+    const [countryRecord] = await db.select().from(country).where(eq(country.code, countryCode)).limit(1);
+    if (countryRecord) {
+      const [pppRuleRecord] = await db
         .select()
-        .from(pppRules)
+        .from(pppRule)
         .where(
           and(
-            eq(pppRules.organizationId, organizationId),
-            eq(pppRules.isActive, true),
-            eq(pppRules.countries, countryCode),
+            eq(pppRule.organizationId, organizationId),
+            eq(pppRule.isActive, true),
+            eq(pppRule.countries, countryCode),
           ),
         )
-        .orderBy(pppRules.priority, "desc")
+        .orderBy(pppRule.priority, "desc")
         .limit(1);
 
-      pppDiscount = pppRule
-        ? Math.min(Math.max(pppRule.minDiscount, country.discountPercentage || 0), pppRule.maxDiscount)
-        : country.discountPercentage || 0;
+      pppDiscount = pppRuleRecord
+        ? Math.min(Math.max(pppRuleRecord.minDiscount, countryRecord.discountPercentage || 0), pppRuleRecord.maxDiscount)
+        : countryRecord.discountPercentage || 0;
     }
   }
 
   if (promotionCode && organizationId) {
-    const [promotion] = await db
+    const [promotionRecord] = await db
       .select()
-      .from(promotions)
+      .from(promotion)
       .where(
         and(
-          eq(promotions.code, promotionCode),
-          eq(promotions.organizationId, organizationId),
-          eq(promotions.isActive, true),
-          eq(promotions.validFrom, new Date()),
-          eq(promotions.validTo, new Date()),
+          eq(promotion.code, promotionCode),
+          eq(promotion.organizationId, organizationId),
+          eq(promotion.isActive, true),
+          eq(promotion.validFrom, new Date()),
+          eq(promotion.validTo, new Date()),
         ),
       )
       .limit(1);
 
-    if (promotion) {
-      if (promotion.type === "percentage") {
-        promotionDiscount = Math.round((basePrice * promotion.value) / 100);
-      } else if (promotion.type === "fixed") {
-        promotionDiscount = promotion.value;
+    if (promotionRecord) {
+      if (promotionRecord.type === "percentage") {
+        promotionDiscount = Math.round((basePrice * promotionRecord.value) / 100);
+      } else if (promotionRecord.type === "fixed") {
+        promotionDiscount = promotionRecord.value;
       }
     }
   }

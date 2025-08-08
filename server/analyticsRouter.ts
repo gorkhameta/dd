@@ -1,9 +1,7 @@
-import { analyticsEvents, countries, customers, orders } from "@/db";
+import { analyticsEvent, order } from "@/db/schema";
 import { createTRPCRouter, orgAccessProcedure, orgAdminProcedure } from "@/trpc/init";
 import { and, eq } from "drizzle-orm";
 import z from "zod";
-import { TRPCError } from "@trpc/server";
-
 
 export const analyticsRouter = createTRPCRouter({
     trackEvent: orgAdminProcedure
@@ -23,7 +21,7 @@ export const analyticsRouter = createTRPCRouter({
         )
         .mutation(async ({ ctx, input }) => {
             const [event] = await ctx.db
-                .insert(analyticsEvents)
+                .insert(analyticsEvent)
                 .values({
                     ...input,
                     timestamp: new Date(),
@@ -37,11 +35,11 @@ export const analyticsRouter = createTRPCRouter({
         .query(async ({ ctx, input }) => {
             return await ctx.db
                 .select()
-                .from(analyticsEvents)
+                .from(analyticsEvent)
                 .where(
                     and(
-                        eq(analyticsEvents.organizationId, input.organizationId),
-                        input.eventType ? eq(analyticsEvents.eventType, input.eventType) : undefined,
+                        eq(analyticsEvent.organizationId, input.organizationId),
+                        input.eventType ? eq(analyticsEvent.eventType, input.eventType) : undefined,
                     ),
                 );
         }),
@@ -50,19 +48,19 @@ export const analyticsRouter = createTRPCRouter({
         .input(z.object({ organizationId: z.string(), startDate: z.date(), endDate: z.date() }))
         .query(async ({ ctx, input }) => {
             // Placeholder for revenue metrics calculation (MRR, ARR, churn, LTV)
-            const order = await ctx.db
+            const orderData = await ctx.db
                 .select()
-                .from(orders)
+                .from(order)
                 .where(
                     and(
-                        eq(orders.organizationId, input.organizationId),
-                        eq(orders.status, "completed"),
-                        eq(orders.createdAt, input.startDate),
-                        eq(orders.createdAt, input.endDate),
+                        eq(order.organizationId, input.organizationId),
+                        eq(order.status, "completed"),
+                        eq(order.createdAt, input.startDate),
+                        eq(order.createdAt, input.endDate),
                     ),
                 );
 
-            const totalRevenue = order.reduce((sum, order) => sum + order.finalAmount, 0);
-            return { totalRevenue, orderCount: order.length };
+            const totalRevenue = orderData.reduce((sum, orderItem) => sum + orderItem.finalAmount, 0);
+            return { totalRevenue, orderCount: orderData.length };
         }),
 });

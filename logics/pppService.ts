@@ -1,26 +1,26 @@
 import { eq, and } from "drizzle-orm";
-import { countries, pppRules } from "@/db/schema";
+import { country, pppRule } from "@/db/schema";
 
 export async function calculatePPPDiscount(db: any, countryCode: string, organizationId: string) {
-  const [country] = await db.select().from(countries).where(eq(countries.code, countryCode)).limit(1);
-  if (!country) return 0;
+  const [countryRecord] = await db.select().from(country).where(eq(country.code, countryCode)).limit(1);
+  if (!countryRecord) return 0;
 
-  const [pppRule] = await db
+  const [pppRuleRecord] = await db
     .select()
-    .from(pppRules)
+    .from(pppRule)
     .where(
       and(
-        eq(pppRules.organizationId, organizationId),
-        eq(pppRules.isActive, true),
-        eq(pppRules.countries, countryCode),
+        eq(pppRule.organizationId, organizationId),
+        eq(pppRule.isActive, true),
+        eq(pppRule.countries, countryCode),
       ),
     )
-    .orderBy(pppRules.priority,"desc")
+    .orderBy(pppRule.priority,"desc")
     .limit(1);
 
-  return pppRule
-    ? Math.min(Math.max(pppRule.minDiscount, country.discountPercentage || 0), pppRule.maxDiscount)
-    : country.discountPercentage || 0;
+  return pppRuleRecord
+    ? Math.min(Math.max(pppRuleRecord.minDiscount, countryRecord.discountPercentage || 0), pppRuleRecord.maxDiscount)
+    : countryRecord.discountPercentage || 0;
 }
 
 export async function detectCountryFromIP(ipAddress: string): Promise<string> {
