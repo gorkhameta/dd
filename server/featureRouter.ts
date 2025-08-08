@@ -1,4 +1,4 @@
-import { features } from "@/db";
+import { feature } from "@/db/schema";
 import { createTRPCRouter, orgAccessProcedure, orgAdminProcedure } from "@/trpc/init";
 import { and, eq } from "drizzle-orm";
 import z from "zod";
@@ -18,8 +18,8 @@ export const featureRouter = createTRPCRouter({
             }),
         )
         .mutation(async ({ ctx, input }) => {
-            const [feature] = await ctx.db.insert(features).values(input).returning();
-            return feature;
+            const [featureResult] = await ctx.db.insert(feature).values(input).returning();
+            return featureResult;
         }),
 
     update: orgAdminProcedure
@@ -35,23 +35,23 @@ export const featureRouter = createTRPCRouter({
             }),
         )
         .mutation(async ({ ctx, input }) => {
-            const [feature] = await ctx.db
-                .update(features)
+            const [featureResult] = await ctx.db
+                .update(feature)
                 .set({ ...input, updatedAt: new Date() })
-                .where(and(eq(features.id, input.id), eq(features.organizationId, input.organizationId)))
+                .where(and(eq(feature.id, input.id), eq(feature.organizationId, input.organizationId)))
                 .returning();
 
-            if (!feature) throw new TRPCError({ code: "NOT_FOUND", message: "Feature not found" });
+            if (!featureResult) throw new TRPCError({ code: "NOT_FOUND", message: "Feature not found" });
 
-            return feature;
+            return featureResult;
         }),
 
     delete: orgAdminProcedure
         .input(z.object({ organizationId: z.string(), id: z.string() }))
         .mutation(async ({ ctx, input }) => {
             await ctx.db
-                .delete(features)
-                .where(and(eq(features.id, input.id), eq(features.organizationId, input.organizationId)));
+                .delete(feature)
+                .where(and(eq(feature.id, input.id), eq(feature.organizationId, input.organizationId)));
             return { success: true };
         }),
 
@@ -60,21 +60,21 @@ export const featureRouter = createTRPCRouter({
         .query(async ({ ctx, input }) => {
             return await ctx.db
                 .select()
-                .from(features)
-                .where(eq(features.organizationId, input.organizationId));
+                .from(feature)
+                .where(eq(feature.organizationId, input.organizationId));
         }),
 
     get: orgAccessProcedure
         .input(z.object({ organizationId: z.string(), id: z.string() }))
         .query(async ({ ctx, input }) => {
-            const [feature] = await ctx.db
+            const [featureResult] = await ctx.db
                 .select()
-                .from(features)
-                .where(and(eq(features.id, input.id), eq(features.organizationId, input.organizationId)))
+                .from(feature)
+                .where(and(eq(feature.id, input.id), eq(feature.organizationId, input.organizationId)))
                 .limit(1);
 
-            if (!feature) throw new TRPCError({ code: "NOT_FOUND", message: "Feature not found" });
+            if (!featureResult) throw new TRPCError({ code: "NOT_FOUND", message: "Feature not found" });
 
-            return feature;
+            return featureResult;
         }),
 });

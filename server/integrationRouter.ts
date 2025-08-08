@@ -1,9 +1,8 @@
-import { integrations } from "@/db";
+import { integration } from "@/db/schema";
 import { createTRPCRouter, orgAccessProcedure, orgAdminProcedure } from "@/trpc/init";
 import { and, eq } from "drizzle-orm";
 import z from "zod";
 import { TRPCError } from "@trpc/server";
-
 
 export const integrationRouter = createTRPCRouter({
     create: orgAdminProcedure
@@ -19,14 +18,14 @@ export const integrationRouter = createTRPCRouter({
             }),
         )
         .mutation(async ({ ctx, input }) => {
-            const [integration] = await ctx.db
-                .insert(integrations)
+            const [integrationResult] = await ctx.db
+                .insert(integration)
                 .values({
                     ...input,
                     isActive: false,
                 })
                 .returning();
-            return integration;
+            return integrationResult;
         }),
 
     update: orgAdminProcedure
@@ -44,23 +43,23 @@ export const integrationRouter = createTRPCRouter({
             }),
         )
         .mutation(async ({ ctx, input }) => {
-            const [integration] = await ctx.db
-                .update(integrations)
+            const [integrationResult] = await ctx.db
+                .update(integration)
                 .set({ ...input, updatedAt: new Date() })
-                .where(and(eq(integrations.id, input.id), eq(integrations.organizationId, input.organizationId)))
+                .where(and(eq(integration.id, input.id), eq(integration.organizationId, input.organizationId)))
                 .returning();
 
-            if (!integration) throw new TRPCError({ code: "NOT_FOUND", message: "Integration not found" });
+            if (!integrationResult) throw new TRPCError({ code: "NOT_FOUND", message: "Integration not found" });
 
-            return integration;
+            return integrationResult;
         }),
 
     delete: orgAdminProcedure
         .input(z.object({ organizationId: z.string(), id: z.string() }))
         .mutation(async ({ ctx, input }) => {
             await ctx.db
-                .delete(integrations)
-                .where(and(eq(integrations.id, input.id), eq(integrations.organizationId, input.organizationId)));
+                .delete(integration)
+                .where(and(eq(integration.id, input.id), eq(integration.organizationId, input.organizationId)));
             return { success: true };
         }),
 
@@ -69,21 +68,21 @@ export const integrationRouter = createTRPCRouter({
         .query(async ({ ctx, input }) => {
             return await ctx.db
                 .select()
-                .from(integrations)
-                .where(eq(integrations.organizationId, input.organizationId));
+                .from(integration)
+                .where(eq(integration.organizationId, input.organizationId));
         }),
 
     get: orgAccessProcedure
         .input(z.object({ organizationId: z.string(), id: z.string() }))
         .query(async ({ ctx, input }) => {
-            const [integration] = await ctx.db
+            const [integrationResult] = await ctx.db
                 .select()
-                .from(integrations)
-                .where(and(eq(integrations.id, input.id), eq(integrations.organizationId, input.organizationId)))
+                .from(integration)
+                .where(and(eq(integration.id, input.id), eq(integration.organizationId, input.organizationId)))
                 .limit(1);
 
-            if (!integration) throw new TRPCError({ code: "NOT_FOUND", message: "Integration not found" });
+            if (!integrationResult) throw new TRPCError({ code: "NOT_FOUND", message: "Integration not found" });
 
-            return integration;
+            return integrationResult;
         }),
 });

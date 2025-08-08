@@ -1,59 +1,59 @@
 import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
-import { entitlements, features, subscriptions, planFeatures } from "@/db/schema";
+import { entitlement, feature, subscription, planFeature } from "@/db/schema";
 
 export async function checkFeatureAccess(db: any, customerId: string, featureSlug: string, organizationId: string) {
-  const [entitlement] = await db
+  const [entitlementRecord] = await db
     .select()
-    .from(entitlements)
-    .innerJoin(features, eq(features.id, entitlements.featureId))
+    .from(entitlement)
+    .innerJoin(feature, eq(feature.id, entitlement.featureId))
     .where(
       and(
-        eq(entitlements.customerId, customerId),
-        eq(features.slug, featureSlug),
-        eq(features.organizationId, organizationId),
+        eq(entitlement.customerId, customerId),
+        eq(feature.slug, featureSlug),
+        eq(feature.organizationId, organizationId),
       ),
     )
     .limit(1);
 
-  if (entitlement) {
+  if (entitlementRecord) {
     return {
       hasAccess: true,
-      limit: entitlement.value?.limit,
-      usage: entitlement.value?.usage,
+      limit: entitlementRecord.entitlement.value?.limit,
+      usage: entitlementRecord.entitlement.value?.usage,
     };
   }
 
-  const [subscription] = await db
+  const [subscriptionRecord] = await db
     .select()
-    .from(subscriptions)
+    .from(subscription)
     .where(
       and(
-        eq(subscriptions.customerId, customerId),
-        eq(subscriptions.status, "active"),
-        eq(subscriptions.organizationId, organizationId),
+        eq(subscription.customerId, customerId),
+        eq(subscription.status, "active"),
+        eq(subscription.organizationId, organizationId),
       ),
     )
     .limit(1);
 
-  if (!subscription) return { hasAccess: false };
+  if (!subscriptionRecord) return { hasAccess: false };
 
-  const [planFeature] = await db
+  const [planFeatureRecord] = await db
     .select()
-    .from(planFeatures)
-    .innerJoin(features, eq(features.id, planFeatures.featureId))
+    .from(planFeature)
+    .innerJoin(feature, eq(feature.id, planFeature.featureId))
     .where(
       and(
-        eq(planFeatures.planId, subscription.planId),
-        eq(features.slug, featureSlug),
-        eq(features.organizationId, organizationId),
+        eq(planFeature.planId, subscriptionRecord.planId),
+        eq(feature.slug, featureSlug),
+        eq(feature.organizationId, organizationId),
       ),
     )
     .limit(1);
 
   return {
-    hasAccess: !!planFeature,
-    limit: planFeature?.value?.limit,
-    usage: planFeature?.value?.usage,
+    hasAccess: !!planFeatureRecord,
+    limit: planFeatureRecord?.planFeature.value?.limit,
+    usage: planFeatureRecord?.planFeature.value?.usage,
   };
 }

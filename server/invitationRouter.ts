@@ -1,10 +1,9 @@
-import { invitations, members } from "@/db";
+import { invitation, member } from "@/db/schema";
 import { createTRPCRouter, orgAccessProcedure, orgAdminProcedure, protectedProcedure } from "@/trpc/init";
 import { and, eq } from "drizzle-orm";
 import z from "zod";
 import { TRPCError } from "@trpc/server";
 import { authClient } from "@/lib/auth-client";
-
 
 export const invitationRouter = createTRPCRouter({
     create: orgAdminProcedure
@@ -16,12 +15,11 @@ export const invitationRouter = createTRPCRouter({
             }),
         )
         .mutation(async ({ ctx, input }) => {
-
             const userId = ctx.auth!.session.userId as string;
 
             return await ctx.db.transaction(async (tx) => {
-                const [invitation] = await tx
-                    .insert(invitations)
+                const [invitationResult] = await tx
+                    .insert(invitation)
                     .values({
                         organizationId: input.organizationId,
                         email: input.email,
@@ -37,7 +35,7 @@ export const invitationRouter = createTRPCRouter({
                     organizationId: input.organizationId,
                 });
 
-                return invitation;
+                return invitationResult;
             });
         }),
 
@@ -45,35 +43,34 @@ export const invitationRouter = createTRPCRouter({
         .input(z.object({ invitationId: z.string() }))
         .mutation(async ({ ctx, input }) => {
             return await ctx.db.transaction(async (tx) => {
-
                 const userId = ctx.auth!.session.userId as string;
 
-                const [invitation] = await tx
+                const [invitationResult] = await tx
                     .select()
-                    .from(invitations)
-                    .where(and(eq(invitations.id, input.invitationId), eq(invitations.status, "pending")))
+                    .from(invitation)
+                    .where(and(eq(invitation.id, input.invitationId), eq(invitation.status, "pending")))
                     .limit(1);
 
-                if (!invitation) {
+                if (!invitationResult) {
                     throw new TRPCError({ code: "NOT_FOUND", message: "Invitation not found or expired" });
                 }
 
                 const sessionEmail = ctx.auth!.user.email as string;
 
-                if (invitation.email !== sessionEmail) {
+                if (invitationResult.email !== sessionEmail) {
                     throw new TRPCError({ code: "FORBIDDEN", message: "Invitation email does not match user" });
                 }
 
-                await tx.insert(members).values({
-                    organizationId: invitation.organizationId,
+                await tx.insert(member).values({
+                    organizationId: invitationResult.organizationId,
                     userId: userId,
-                    role: invitation.role,
+                    role: invitationResult.role,
                 });
 
                 await tx
-                    .update(invitations)
+                    .update(invitation)
                     .set({ status: "accepted", updatedAt: new Date() })
-                    .where(eq(invitations.id, input.invitationId));
+                    .where(eq(invitation.id, input.invitationId));
 
                 return { success: true };
             });
@@ -84,26 +81,26 @@ export const invitationRouter = createTRPCRouter({
         .query(async ({ ctx, input }) => {
             return await ctx.db
                 .select({
-                    id: invitations.id,
-                    email: invitations.email,
-                    role: invitations.role,
-                    status: invitations.status,
-                    inviterId: invitations.inviterId,
-                    createdAt: invitations.createdAt,
-                    updatedAt: invitations.updatedAt,
+                    id: invitation.id,
+                    email: invitation.email,
+                    role: invitation.role,
+                    status: invitation.status,
+                    inviterId: invitation.inviterId,
+                    createdAt: invitation.createdAt,
+                    updatedAt: invitation.updatedAt,
                 })
-                .from(invitations)
-                .where(eq(invitations.organizationId, input.organizationId));
+                .from(invitation)
+                .where(eq(invitation.organizationId, input.organizationId));
         }),
 
     revoke: orgAdminProcedure
         .input(z.object({ organizationId: z.string(), invitationId: z.string() }))
         .mutation(async ({ ctx, input }) => {
             await ctx.db
-                .update(invitations)
+                .update(invitation)
                 .set({ status: "revoked", updatedAt: new Date() })
                 .where(
-                    and(eq(invitations.id, input.invitationId), eq(invitations.organizationId, input.organizationId)),
+                    and(eq(invitation.id, input.invitationId), eq(invitation.organizationId, input.organizationId)),
                 );
             return { success: true };
         }),

@@ -1,9 +1,9 @@
-import { pricingPlans, products } from "@/db";
+
+import { pricingPlan, product } from "@/db/schema";
 import { createTRPCRouter, orgAccessProcedure, orgAdminProcedure } from "@/trpc/init";
 import { and, eq } from "drizzle-orm";
 import z from "zod";
 import { TRPCError } from "@trpc/server";
-
 
 export const planRouter = createTRPCRouter({
     create: orgAdminProcedure
@@ -25,15 +25,15 @@ export const planRouter = createTRPCRouter({
             }),
         )
         .mutation(async ({ ctx, input }) => {
-            const [product] = await ctx.db
+            const [singleProduct] = await ctx.db
                 .select()
-                .from(products)
-                .where(and(eq(products.id, input.productId), eq(products.organizationId, input.organizationId)))
+                .from(product)
+                .where(and(eq(product.id, input.productId), eq(product.organizationId, input.organizationId)))
                 .limit(1);
-            if (!product) throw new TRPCError({ code: "NOT_FOUND", message: "Product not found" });
+            if (!singleProduct) throw new TRPCError({ code: "NOT_FOUND", message: "Product not found" });
 
-            const [plan] = await ctx.db.insert(pricingPlans).values(input).returning();
-            return plan;
+            const [newPlan] = await ctx.db.insert(pricingPlan).values(input).returning();
+            return newPlan;
         }),
 
     update: orgAdminProcedure
@@ -57,20 +57,20 @@ export const planRouter = createTRPCRouter({
         )
         .mutation(async ({ ctx, input }) => {
             // Step 1: Ensure this plan belongs to a product in the organization
-            const plan = await ctx.db
-                .select({ id: pricingPlans.id })
-                .from(pricingPlans)
-                .innerJoin(products, eq(pricingPlans.productId, products.id))
+            const singlePlan = await ctx.db
+                .select({ id: pricingPlan.id })
+                .from(pricingPlan)
+                .innerJoin(product, eq(pricingPlan.productId, product.id))
                 .where(
                     and(
-                        eq(pricingPlans.id, input.id),
-                        eq(products.organizationId, input.organizationId)
+                        eq(pricingPlan.id, input.id),
+                        eq(product.organizationId, input.organizationId)
                     )
                 )
                 .limit(1)
                 .then((res) => res[0]);
 
-            if (!plan) {
+            if (!singlePlan) {
                 throw new TRPCError({
                     code: "NOT_FOUND",
                     message: "Plan not found or doesn't belong to organization",
@@ -78,41 +78,40 @@ export const planRouter = createTRPCRouter({
             }
 
             // Step 2: Do the update
-            const [updated] = await ctx.db
-                .update(pricingPlans)
+            const [updatedPlan] = await ctx.db
+                .update(pricingPlan)
                 .set({ ...input, updatedAt: new Date() })
-                .where(eq(pricingPlans.id, input.id))
+                .where(eq(pricingPlan.id, input.id))
                 .returning();
 
-            return updated;
+            return updatedPlan;
         }),
-
 
     delete: orgAdminProcedure
         .input(z.object({ organizationId: z.string(), id: z.string() }))
         .mutation(async ({ ctx, input }) => {
             // Step 1: Validate that pricingPlan with that ID belongs to the correct organization
-            const plan = await ctx.db
-                .select({ id: pricingPlans.id })
-                .from(pricingPlans)
-                .innerJoin(products, eq(pricingPlans.productId, products.id))
+            const singlePlan = await ctx.db
+                .select({ id: pricingPlan.id })
+                .from(pricingPlan)
+                .innerJoin(product, eq(pricingPlan.productId, product.id))
                 .where(
                     and(
-                        eq(pricingPlans.id, input.id),
-                        eq(products.organizationId, input.organizationId)
+                        eq(pricingPlan.id, input.id),
+                        eq(product.organizationId, input.organizationId)
                     )
                 )
                 .limit(1)
                 .then((res) => res[0]);
 
-            if (!plan) {
+            if (!singlePlan) {
                 throw new TRPCError({ code: "NOT_FOUND", message: "Plan not found in organization" });
             }
 
             // Step 2: Delete the pricingPlan
             await ctx.db
-                .delete(pricingPlans)
-                .where(eq(pricingPlans.id, plan.id));
+                .delete(pricingPlan)
+                .where(eq(pricingPlan.id, singlePlan.id));
 
             return { success: true };
         }),
@@ -122,23 +121,23 @@ export const planRouter = createTRPCRouter({
         .query(async ({ ctx, input }) => {
             return await ctx.db
                 .select()
-                .from(pricingPlans)
-                .innerJoin(products, eq(products.id, pricingPlans.productId))
-                .where(eq(products.organizationId, input.organizationId));
+                .from(pricingPlan)
+                .innerJoin(product, eq(product.id, pricingPlan.productId))
+                .where(eq(product.organizationId, input.organizationId));
         }),
 
     get: orgAccessProcedure
         .input(z.object({ organizationId: z.string(), id: z.string() }))
         .query(async ({ ctx, input }) => {
-            const [plan] = await ctx.db
+            const [singlePlan] = await ctx.db
                 .select()
-                .from(pricingPlans)
-                .innerJoin(products, eq(products.id, pricingPlans.productId))
-                .where(and(eq(pricingPlans.id, input.id), eq(products.organizationId, input.organizationId)))
+                .from(pricingPlan)
+                .innerJoin(product, eq(product.id, pricingPlan.productId))
+                .where(and(eq(pricingPlan.id, input.id), eq(product.organizationId, input.organizationId)))
                 .limit(1);
 
-            if (!plan) throw new TRPCError({ code: "NOT_FOUND", message: "Plan not found" });
+            if (!singlePlan) throw new TRPCError({ code: "NOT_FOUND", message: "Plan not found" });
 
-            return plan.pricing_plans;
+            return singlePlan.pricing_plan;
         }),
 });

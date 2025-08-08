@@ -1,4 +1,4 @@
-import { customers, pricingPlans, products, subscriptions } from "@/db";
+import { customer, pricingPlan, product, subscription } from "@/db/schema";
 import { createTRPCRouter, orgAccessProcedure, orgAdminProcedure, protectedProcedure } from "@/trpc/init";
 import { and, eq } from "drizzle-orm";
 import z from "zod";
@@ -20,28 +20,28 @@ export const billingRouter = createTRPCRouter({
         )
         .mutation(async ({ ctx, input }) => {
             // Fetch customer
-            const [customer] = await ctx.db
+            const [customerData] = await ctx.db
                 .select()
-                .from(customers)
-                .where(and(eq(customers.id, input.customerId), eq(customers.organizationId, input.organizationId)))
+                .from(customer)
+                .where(and(eq(customer.id, input.customerId), eq(customer.organizationId, input.organizationId)))
                 .limit(1);
 
-            if (!customer) throw new TRPCError({ code: "NOT_FOUND", message: "Customer not found" });
+            if (!customerData) throw new TRPCError({ code: "NOT_FOUND", message: "Customer not found" });
 
             // Fetch plan joined with product
-            const [plan] = await ctx.db
+            const [planData] = await ctx.db
                 .select()
-                .from(pricingPlans)
-                .innerJoin(products, eq(products.id, pricingPlans.productId))
-                .where(and(eq(pricingPlans.id, input.planId), eq(products.organizationId, input.organizationId)))
+                .from(pricingPlan)
+                .innerJoin(product, eq(product.id, pricingPlan.productId))
+                .where(and(eq(pricingPlan.id, input.planId), eq(product.organizationId, input.organizationId)))
                 .limit(1);
 
-            if (!plan) throw new TRPCError({ code: "NOT_FOUND", message: "Plan not found" });
+            if (!planData) throw new TRPCError({ code: "NOT_FOUND", message: "Plan not found" });
 
-            const pricingPlan = plan.pricing_plans;
+            const planDetails = planData.pricing_plan;
             // Safe access with default fallback values:
-            const intervalCount = pricingPlan?.intervalCount ?? 1;  // default 1 month
-            const trialDays = pricingPlan?.trialDays ?? 0;          // default 0 days trial
+            const intervalCount = planDetails?.intervalCount ?? 1;  // default 1 month
+            const trialDays = planDetails?.trialDays ?? 0;          // default 0 days trial
 
             const now = new Date();
             const periodEnd = new Date(now);
@@ -51,8 +51,8 @@ export const billingRouter = createTRPCRouter({
             const trialStart = trialDays > 0 ? now : null;
             const trialEnd = trialDays > 0 ? new Date(now.getTime() + trialDays * 24 * 60 * 60 * 1000) : null;
 
-            const [subscription] = await ctx.db
-                .insert(subscriptions)
+            const [subscriptionData] = await ctx.db
+                .insert(subscription)
                 .values({
                     organizationId: input.organizationId,
                     customerId: input.customerId,
@@ -67,7 +67,7 @@ export const billingRouter = createTRPCRouter({
                 })
                 .returning();
 
-            return subscription;
+            return subscriptionData;
         }),
 
 
@@ -83,34 +83,34 @@ export const billingRouter = createTRPCRouter({
             }),
         )
         .mutation(async ({ ctx, input }) => {
-            const [subscription] = await ctx.db
-                .update(subscriptions)
+            const [subscriptionData] = await ctx.db
+                .update(subscription)
                 .set({ ...input, updatedAt: new Date() })
-                .where(and(eq(subscriptions.id, input.id), eq(subscriptions.organizationId, input.organizationId)))
+                .where(and(eq(subscription.id, input.id), eq(subscription.organizationId, input.organizationId)))
                 .returning();
 
-            if (!subscription) throw new TRPCError({ code: "NOT_FOUND", message: "Subscription not found" });
+            if (!subscriptionData) throw new TRPCError({ code: "NOT_FOUND", message: "Subscription not found" });
 
-            return subscription;
+            return subscriptionData;
         }),
 
     cancel: orgAdminProcedure
         .input(z.object({ organizationId: z.string(), id: z.string(), cancelAtPeriodEnd: z.boolean().default(false) }))
         .mutation(async ({ ctx, input }) => {
-            const [subscription] = await ctx.db
-                .update(subscriptions)
+            const [subscriptionData] = await ctx.db
+                .update(subscription)
                 .set({
                     status: input.cancelAtPeriodEnd ? "active" : "cancelled",
                     cancelAtPeriodEnd: input.cancelAtPeriodEnd,
                     cancelledAt: input.cancelAtPeriodEnd ? null : new Date(),
                     updatedAt: new Date(),
                 })
-                .where(and(eq(subscriptions.id, input.id), eq(subscriptions.organizationId, input.organizationId)))
+                .where(and(eq(subscription.id, input.id), eq(subscription.organizationId, input.organizationId)))
                 .returning();
 
-            if (!subscription) throw new TRPCError({ code: "NOT_FOUND", message: "Subscription not found" });
+            if (!subscriptionData) throw new TRPCError({ code: "NOT_FOUND", message: "Subscription not found" });
 
-            return subscription;
+            return subscriptionData;
         }),
 
     handleWebhook: protectedProcedure
@@ -130,22 +130,22 @@ export const billingRouter = createTRPCRouter({
         .query(async ({ ctx, input }) => {
             return await ctx.db
                 .select()
-                .from(subscriptions)
-                .where(eq(subscriptions.organizationId, input.organizationId));
+                .from(subscription)
+                .where(eq(subscription.organizationId, input.organizationId));
         }),
 
     get: orgAccessProcedure
         .input(z.object({ organizationId: z.string(), id: z.string() }))
         .query(async ({ ctx, input }) => {
-            const [subscription] = await ctx.db
+            const [subscriptionData] = await ctx.db
                 .select()
-                .from(subscriptions)
-                .where(and(eq(subscriptions.id, input.id), eq(subscriptions.organizationId, input.organizationId)))
+                .from(subscription)
+                .where(and(eq(subscription.id, input.id), eq(subscription.organizationId, input.organizationId)))
                 .limit(1);
 
-            if (!subscription) throw new TRPCError({ code: "NOT_FOUND", message: "Subscription not found" });
+            if (!subscriptionData) throw new TRPCError({ code: "NOT_FOUND", message: "Subscription not found" });
 
-            return subscription;
+            return subscriptionData;
         }),
 
     getUserSubscriptions: protectedProcedure
@@ -156,8 +156,8 @@ export const billingRouter = createTRPCRouter({
 
             return await ctx.db
                 .select()
-                .from(subscriptions)
-                .innerJoin(customers, eq(customers.id, subscriptions.customerId))
-                .where(and(eq(subscriptions.organizationId, input.organizationId), eq(customers.email, userId)));
+                .from(subscription)
+                .innerJoin(customer, eq(customer.id, subscription.customerId))
+                .where(and(eq(subscription.organizationId, input.organizationId), eq(customer.email, userId)));
         }),
 })

@@ -1,11 +1,10 @@
-import { customers, orders, pricingPlans, products } from "@/db";
+import { customer, order, pricingPlan, product } from "@/db/schema";
 import { detectCountryFromIP } from "@/logics/pppService";
 import { calculatePrice } from "@/logics/pricingService";
 import { createTRPCRouter, orgAccessProcedure, orgAdminProcedure, protectedProcedure } from "@/trpc/init";
 import { and, eq } from "drizzle-orm";
 import z from "zod";
 import { TRPCError } from "@trpc/server";
-
 
 export const orderRouter = createTRPCRouter({
     create: protectedProcedure
@@ -18,37 +17,37 @@ export const orderRouter = createTRPCRouter({
             }),
         )
         .mutation(async ({ ctx, input }) => {
-            const [customer] = await ctx.db
+            const [customerResult] = await ctx.db
                 .select()
-                .from(customers)
-                .where(and(eq(customers.id, input.customerId), eq(customers.organizationId, input.organizationId)))
+                .from(customer)
+                .where(and(eq(customer.id, input.customerId), eq(customer.organizationId, input.organizationId)))
                 .limit(1);
-            if (!customer) throw new TRPCError({ code: "NOT_FOUND", message: "Customer not found" });
+            if (!customerResult) throw new TRPCError({ code: "NOT_FOUND", message: "Customer not found" });
 
             const [plan] = await ctx.db
                 .select()
-                .from(pricingPlans)
-                .innerJoin(products, eq(products.id, pricingPlans.productId))
-                .where(and(eq(pricingPlans.id, input.planId), eq(products.organizationId, input.organizationId)))
+                .from(pricingPlan)
+                .innerJoin(product, eq(product.id, pricingPlan.productId))
+                .where(and(eq(pricingPlan.id, input.planId), eq(product.organizationId, input.organizationId)))
                 .limit(1);
             if (!plan) throw new TRPCError({ code: "NOT_FOUND", message: "Plan not found" });
 
-            const countryCode = customer.countryCode || (await detectCountryFromIP(customer.ipAddress || ""));
+            const countryCode = customerResult.countryCode || (await detectCountryFromIP(customerResult.ipAddress || ""));
             const priceData = await calculatePrice(ctx.db, input.planId, countryCode, input.promotionCode, input.organizationId);
 
             return await ctx.db.transaction(async (tx) => {
-                const [order] = await tx
-                    .insert(orders)
+                const [orderResult] = await tx
+                    .insert(order)
                     .values({
                         organizationId: input.organizationId,
                         customerId: input.customerId,
-                        productId: plan.pricing_plans.productId,
+                        productId: plan.pricing_plan.productId,
                         planId: input.planId,
                         status: "pending",
                         baseAmount: priceData.basePrice,
                         discountAmount: priceData.pppDiscount + priceData.promotionDiscount,
                         finalAmount: priceData.finalPrice,
-                        currency: plan.pricing_plans.currency,
+                        currency: plan.pricing_plan.currency,
                         countryCode,
                         pppDiscount: priceData.pppDiscount,
                         promotionCode: input.promotionCode,
@@ -56,7 +55,7 @@ export const orderRouter = createTRPCRouter({
                     })
                     .returning();
 
-                return order;
+                return orderResult;
             });
         }),
 
@@ -69,15 +68,15 @@ export const orderRouter = createTRPCRouter({
             }),
         )
         .mutation(async ({ ctx, input }) => {
-            const [order] = await ctx.db
-                .update(orders)
+            const [orderResult] = await ctx.db
+                .update(order)
                 .set({ status: input.status, updatedAt: new Date() })
-                .where(and(eq(orders.id, input.id), eq(orders.organizationId, input.organizationId)))
+                .where(and(eq(order.id, input.id), eq(order.organizationId, input.organizationId)))
                 .returning();
 
-            if (!order) throw new TRPCError({ code: "NOT_FOUND", message: "Order not found" });
+            if (!orderResult) throw new TRPCError({ code: "NOT_FOUND", message: "Order not found" });
 
-            return order;
+            return orderResult;
         }),
 
     list: orgAccessProcedure
@@ -85,21 +84,21 @@ export const orderRouter = createTRPCRouter({
         .query(async ({ ctx, input }) => {
             return await ctx.db
                 .select()
-                .from(orders)
-                .where(eq(orders.organizationId, input.organizationId));
+                .from(order)
+                .where(eq(order.organizationId, input.organizationId));
         }),
 
     get: orgAccessProcedure
         .input(z.object({ organizationId: z.string(), id: z.string() }))
         .query(async ({ ctx, input }) => {
-            const [order] = await ctx.db
+            const [orderResult] = await ctx.db
                 .select()
-                .from(orders)
-                .where(and(eq(orders.id, input.id), eq(orders.organizationId, input.organizationId)))
+                .from(order)
+                .where(and(eq(order.id, input.id), eq(order.organizationId, input.organizationId)))
                 .limit(1);
 
-            if (!order) throw new TRPCError({ code: "NOT_FOUND", message: "Order not found" });
+            if (!orderResult) throw new TRPCError({ code: "NOT_FOUND", message: "Order not found" });
 
-            return order;
+            return orderResult;
         }),
 });

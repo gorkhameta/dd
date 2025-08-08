@@ -1,9 +1,8 @@
-import { products } from "@/db";
+import { product } from "@/db/schema";
 import { createTRPCRouter, orgAccessProcedure, orgAdminProcedure } from "@/trpc/init";
 import { and, eq } from "drizzle-orm";
 import z from "zod";
 import { TRPCError } from "@trpc/server";
-
 
 export const productRouter = createTRPCRouter({
     create: orgAdminProcedure
@@ -20,22 +19,22 @@ export const productRouter = createTRPCRouter({
             }),
         )
         .mutation(async ({ ctx, input }) => {
-            const [product] = await ctx.db.insert(products).values(input).returning();
-            return product;
+            const [productResult] = await ctx.db.insert(product).values(input).returning();
+            return productResult;
         }),
 
     get: orgAccessProcedure
         .input(z.object({ organizationId: z.string(), productId: z.string() }))
         .query(async ({ ctx, input }) => {
-            const [product] = await ctx.db
+            const [productResult] = await ctx.db
                 .select()
-                .from(products)
-                .where(and(eq(products.id, input.productId), eq(products.organizationId, input.organizationId)))
+                .from(product)
+                .where(and(eq(product.id, input.productId), eq(product.organizationId, input.organizationId)))
                 .limit(1);
 
-            if (!product) throw new TRPCError({ code: "NOT_FOUND", message: "Product not found" });
+            if (!productResult) throw new TRPCError({ code: "NOT_FOUND", message: "Product not found" });
 
-            return product;
+            return productResult;
         }),
 
     update: orgAdminProcedure
@@ -53,23 +52,23 @@ export const productRouter = createTRPCRouter({
             }),
         )
         .mutation(async ({ ctx, input }) => {
-            const [product] = await ctx.db
-                .update(products)
+            const [productResult] = await ctx.db
+                .update(product)
                 .set({ ...input, updatedAt: new Date() })
-                .where(and(eq(products.id, input.id), eq(products.organizationId, input.organizationId)))
+                .where(and(eq(product.id, input.id), eq(product.organizationId, input.organizationId)))
                 .returning();
 
-            if (!product) throw new TRPCError({ code: "NOT_FOUND", message: "Product not found" });
+            if (!productResult) throw new TRPCError({ code: "NOT_FOUND", message: "Product not found" });
 
-            return product;
+            return productResult;
         }),
 
     delete: orgAdminProcedure
         .input(z.object({ organizationId: z.string(), id: z.string() }))
         .mutation(async ({ ctx, input }) => {
             await ctx.db
-                .delete(products)
-                .where(and(eq(products.id, input.id), eq(products.organizationId, input.organizationId)));
+                .delete(product)
+                .where(and(eq(product.id, input.id), eq(product.organizationId, input.organizationId)));
             return { success: true };
         }),
 
@@ -78,7 +77,7 @@ export const productRouter = createTRPCRouter({
         .query(async ({ ctx, input }) => {
             return await ctx.db
                 .select()
-                .from(products)
-                .where(eq(products.organizationId, input.organizationId));
+                .from(product)
+                .where(eq(product.organizationId, input.organizationId));
         }),
 });
