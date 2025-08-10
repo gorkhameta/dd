@@ -20,6 +20,13 @@ export const metadata: Metadata = {
   description: "Build presentations",
 };
 
+/**
+ * Root layout component that sets up global providers, fonts, and metadata for the application.
+ *
+ * Wraps the application with tRPC, theme, and notification providers, and applies global font styles.
+ *
+ * @param children - The content to render within the layout
+ */
 export default function RootLayout({
   children,
 }: Readonly<{

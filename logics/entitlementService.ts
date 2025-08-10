@@ -2,6 +2,16 @@ import { TRPCError } from "@trpc/server";
 import { and, eq } from "drizzle-orm";
 import { entitlement, feature, subscription, planFeature } from "@/db/schema";
 
+/**
+ * Determines whether a customer has access to a specific feature within an organization.
+ *
+ * Checks for a direct entitlement to the feature, then for an active subscription that includes the feature in its plan. Returns an object indicating access status and, if applicable, the feature's usage limit and current usage.
+ *
+ * @param customerId - The unique identifier of the customer
+ * @param featureSlug - The slug identifying the feature
+ * @param organizationId - The unique identifier of the organization
+ * @returns An object with `hasAccess` (boolean), and optionally `limit` and `usage` if access is granted
+ */
 export async function checkFeatureAccess(db: any, customerId: string, featureSlug: string, organizationId: string) {
   const [entitlementRecord] = await db
     .select()
